@@ -15,9 +15,9 @@ const CHARM_U = [0.06, 0.94, 0.14, 0.86];
 // Proportions measured from each device's official product photo
 // (loop radii rx/ry, strap width w, thickness t, edge radius r).
 export const DEVICE_SPEC = {
-  whoop:  { rx: 0.9,  ry: 0.95, w: 1.0,  t: 0.085, r: 0.035 },
-  garmin: { rx: 0.76, ry: 0.7,  w: 1.72, t: 0.1,   r: 0.045 },
-  fitbit: { rx: 0.86, ry: 0.92, w: 0.56, t: 0.075, r: 0.03 },
+  whoop:  { rx: 0.9,  ry: 0.95, w: 0.7,  t: 0.08,  r: 0.032 },
+  garmin: { rx: 0.8,  ry: 0.74, w: 1.1,  t: 0.09,  r: 0.04 },
+  fitbit: { rx: 0.86, ry: 0.92, w: 0.44, t: 0.07,  r: 0.028 },
 };
 const specOf = (dev) => DEVICE_SPEC[dev] || DEVICE_SPEC.whoop;
 
@@ -437,7 +437,7 @@ export class Band {
       return;
     }
     // WHOOP: long slim pod with a gunmetal end cap
-    const L = 1.3, H = 0.2, D = spec.w * 0.72;
+    const L = 1.2, H = 0.19, D = spec.w * 0.86;
     const y = spec.ry + spec.t / 2 + H / 2 - 0.035;
     const body = new THREE.Mesh(new RoundedBoxGeometry(L, H, D, 8, 0.08), podShell());
     body.position.set(0, y, 0);
