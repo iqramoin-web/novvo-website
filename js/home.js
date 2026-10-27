@@ -144,10 +144,15 @@ export function homeView() {
     <div class="reviews__track">${reviewHtml + reviewHtml}</div>
   </section>
 
-  <section class="how">
-    <h2 class="display h2">${t('hw.title')}</h2>
+  <section class="how" id="how">
+    <div class="how__bg" id="howBg" aria-hidden="true"></div>
+    <div class="how__head">
+      <span class="kicker how__kicker">${t('hw.kicker')}</span>
+      <h2 class="display h2">${t('hw.title')}</h2>
+      <p class="how__lead">${t('hw.sub')}</p>
+    </div>
     <div class="how__steps">
-      ${[1, 2, 3].map((i) => `<div class="step" data-reveal><div><span class="mono">0${i}</span><h3>${t(`hw.${i}t`)}</h3></div><p>${t(`hw.${i}d`)}</p></div>`).join('')}
+      ${[1, 2, 3].map((i) => `<div class="step"><div class="step__title"><span class="step__num mono">${t('hw.step')} 0${i}</span><h3>${t(`hw.${i}t`)}</h3></div><p>${t(`hw.${i}d`)}</p></div>`).join('')}
     </div>
   </section>
 
@@ -366,6 +371,10 @@ export function mountHome(root, { onQuick }) {
   $('.hero-card', root).addEventListener('click', (e) => {
     const q = e.target.closest('[data-quick]'); if (q) onQuick(q.dataset.quick, q.dataset.color, q);
   });
+
+  // how it works: slow parallax on the photo, steps cascade in
+  gsap.fromTo('#howBg', { yPercent: -6, scale: 1.12 }, { yPercent: 6, scale: 1.04, ease: 'none', scrollTrigger: { trigger: '#how', start: 'top bottom', end: 'bottom top', scrub: true } });
+  gsap.from($$('#how .step', root), { x: isRTL() ? 60 : -60, opacity: 0, duration: 1, stagger: 0.18, ease: 'expo.out', clearProps: 'transform', scrollTrigger: { trigger: '#how .how__steps', start: 'top 85%' } });
 
   // size finder
   const fitRange = $('#fitRange', root);
