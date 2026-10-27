@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="#3a3a3c">
+  <!-- NOVVO mark traced from ordernovvo.com -->
+  <g transform="translate(50 0)">
+    <polygon points="0,0 34,0 100,100 66,100"/>
+    <polygon points="74,0 100,0 100,48 93,48 93,7 74,7"/>
+    <polygon points="0,55 7,55 7,88 26,100 0,100"/>
+  </g>
+  <text x="100" y="140" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="22" letter-spacing="11">NOVVO</text>
+</svg>
