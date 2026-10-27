@@ -158,9 +158,9 @@ function patternCanvas(type, dev) {
     for (let x = 0; x < TEX_W; x += 16) g.fillRect(x, innerY0 + 10, 6, (TEX_H - innerY0) - 30);
   } else if (type === 'nylon' && dev === 'garmin') {
     // Cirqa: heathered melange knit — short fibres of mixed tone, no ribs
-    g.fillStyle = gray(196); g.fillRect(0, 0, TEX_W, TEX_H);
+    g.fillStyle = gray(222); g.fillRect(0, 0, TEX_W, TEX_H);
     for (let i = 0; i < 70000; i++) {
-      const v = rand() < 0.5 ? 168 + rand() * 30 : 205 + rand() * 30;
+      const v = rand() < 0.5 ? 192 + rand() * 26 : 228 + rand() * 27;
       g.fillStyle = gray(v);
       g.fillRect(rand() * TEX_W, rand() * TEX_H, 4 + rand() * 14, 2);
     }
@@ -168,7 +168,7 @@ function patternCanvas(type, dev) {
     g.fillStyle = gray(150);
     [[0, 10], [faceY1 - 10, 10]].forEach(([y, h]) => g.fillRect(0, y, TEX_W, h));
     // the hook-and-loop tail that wraps over the lower edge of the cuff
-    g.fillStyle = 'rgba(0,0,0,0.22)';
+    g.fillStyle = 'rgba(0,0,0,0.12)';
     g.fillRect(0, 10, TEX_W, faceY1 * 0.16);
     g.fillStyle = gray(120);
     g.fillRect(0, 10 + faceY1 * 0.16, TEX_W, 4);
