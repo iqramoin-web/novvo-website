@@ -370,7 +370,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .how__head .display { margin-top: 12px; color: #fff; }
 .how__lead { margin: 14px 0 0; color: rgba(255, 255, 255, 0.78); font-size: clamp(15px, 1.2vw, 17px); max-width: 40ch; }
 .how__steps { position: relative; display: grid; gap: 12px; }
-.step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: center; width: min(600px, 52%); padding: 22px 26px; border-radius: 18px;
+.step { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; align-items: center; width: min(790px, 64%); padding: 22px 26px; border-radius: 18px;
   background: rgba(28, 26, 23, 0.42); border: 1px solid rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(18px) saturate(1.25); -webkit-backdrop-filter: blur(18px) saturate(1.25);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18); transition: background 0.4s var(--ease), border-color 0.4s; }
@@ -378,7 +378,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 .step:nth-child(2) { margin-inline-start: 9%; }
 .step:nth-child(3) { margin-inline-start: 18%; }
 .step__num { display: inline-block; padding: 4px 9px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); color: rgba(255, 255, 255, 0.75); }
-.step h3 { margin: 12px 0 0; font-weight: 500; font-size: clamp(22px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1.1; }
+.step h3 { margin: 12px 0 0; white-space: nowrap; font-weight: 500; font-size: clamp(22px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1.1; }
 .step p { margin: 0; color: rgba(255, 255, 255, 0.78); font-size: 15px; line-height: 1.5; }
 
 /* ============ sections / materials ============ */
@@ -635,6 +635,7 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
   [dir='rtl'] .how__bg { -webkit-mask-image: none; mask-image: none; }
   .how::before { background: linear-gradient(180deg, rgba(14, 12, 10, 0.55) 0%, rgba(14, 12, 10, 0.2) 35%, rgba(14, 12, 10, 0.8) 100%) !important; }
   .how__steps { margin-top: 32vh; }
+  .step h3 { white-space: normal; }
   .pdp__stage { position: relative; top: 0; height: 60vh; min-height: 360px; }
   .custom__stage { min-height: 0; height: auto; aspect-ratio: 1 / 0.9; }
   .co__summary { position: static; order: -1; }
