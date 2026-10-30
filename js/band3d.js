@@ -4,12 +4,14 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { fontFor, isArabic } from './data.js';
 
 const EXP = 2.3;                             // loop superellipse exponent
 const U_SEG = 260;
 const TEX_W = 2048, TEX_H = 512;
 const ENGRAVE_U = 0.75;                      // bottom of the loop
 const CLASP_U = 0.6;
+const PRINT_U = 0.5;                         // left side of the loop
 const CHARM_U = [0.06, 0.94, 0.14, 0.86];
 
 // Proportions measured from each device's official product photo
@@ -291,6 +293,43 @@ export function makeCharm(kind, metal = 'gold', letter = 'N') {
   return mesh;
 }
 
+// ---------- flat charm icons ----------
+const CHARM_PATHS = {
+  star: 'M12 2.2l2.9 6.4 7 .7-5.3 4.7 1.5 6.9L12 17.4l-6.1 3.5 1.5-6.9L2.1 9.3l7-.7z',
+  heart: 'M12 20.6s-7.6-4.6-9.6-9.3C1.1 8.1 3.2 4.6 6.7 4.6c2 0 3.7 1.1 5.3 3 1.6-1.9 3.3-3 5.3-3 3.5 0 5.6 3.5 4.3 6.7-2 4.7-9.6 9.3-9.6 9.3z',
+  bolt: 'M13.6 1.8 4 13.4h6.6L9 22.2l11-12.6h-6.9z',
+};
+const METAL_STOPS = {
+  gold: ['#fbe7a6', '#d6ad5c', '#9c7330'],
+  silver: ['#ffffff', '#cfd4d9', '#8a9097'],
+  rose: ['#fbd8c6', '#d99d86', '#a2654f'],
+};
+const charmTexCache = {};
+function charmIconTexture(kind, metal = 'gold', letter = 'N') {
+  const key = `${kind}:${metal}:${kind === 'disc' ? letter : ''}`;
+  if (charmTexCache[key]) return charmTexCache[key];
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const [hi, mid, lo] = METAL_STOPS[metal] || METAL_STOPS.gold;
+  const grad = g.createLinearGradient(40, 20, 216, 236);
+  grad.addColorStop(0, hi); grad.addColorStop(0.55, mid); grad.addColorStop(1, lo);
+  g.translate(128, 128); g.scale(9.2, 9.2); g.translate(-12, -12);
+  const path = kind === 'disc' ? (() => { const p = new Path2D(); p.arc(12, 12, 10, 0, Math.PI * 2); return p; })() : new Path2D(CHARM_PATHS[kind] || CHARM_PATHS.star);
+  g.shadowColor = 'rgba(0,0,0,0.35)'; g.shadowBlur = 1.2; g.shadowOffsetY = 0.5;
+  g.fillStyle = grad; g.fill(path);
+  g.shadowColor = 'transparent';
+  g.lineWidth = 0.55; g.strokeStyle = 'rgba(255,255,255,0.65)'; g.stroke(path);
+  if (kind === 'disc') {
+    g.fillStyle = 'rgba(60,40,10,0.75)';
+    g.font = `600 13px ${/[\u0600-\u06FF]/.test(letter) ? '"IBM Plex Sans Arabic"' : '"Instrument Serif", serif'}`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(letter, 12, 12.8);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return (charmTexCache[key] = tex);
+}
+
 // ---------- the strap ----------
 const podShell = () => new THREE.MeshPhysicalMaterial({ color: '#16171a', roughness: 0.42, metalness: 0.25, clearcoat: 0.4, clearcoatRoughness: 0.35, envMapIntensity: 0.9 });
 const gunmetal = () => new THREE.MeshPhysicalMaterial({ color: '#2b2c30', roughness: 0.28, metalness: 0.9, clearcoat: 0.5, clearcoatRoughness: 0.2, envMapIntensity: 1.4 });
@@ -324,6 +363,16 @@ export class Band {
     });
     this.strap = new THREE.Mesh(undefined, this.mat);
     this.group.add(this.strap);
+    // customer prints sit on their own transparent layer so the strap colour doesn't tint them
+    this.printCanvas = document.createElement('canvas');
+    this.printCanvas.width = TEX_W; this.printCanvas.height = TEX_H;
+    this.printTex = tex(this.printCanvas, true);
+    this.printMesh = new THREE.Mesh(undefined, new THREE.MeshStandardMaterial({
+      map: this.printTex, transparent: true, roughness: 0.55, depthWrite: false,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, side: THREE.DoubleSide,
+    }));
+    this.printMesh.visible = false;
+    this.group.add(this.printMesh);
     this.pod = new THREE.Group(); this.group.add(this.pod);
     this.charmGroup = new THREE.Group(); this.group.add(this.charmGroup);
     this.claspMesh = new THREE.Mesh(undefined, metalMaterial(this.cfg.clasp));
@@ -340,7 +389,7 @@ export class Band {
     this.cfg = { ...prev, ...next };
     const c = this.cfg;
     if (c.device !== prev.device) this._applyDevice();
-    else if (c.material !== prev.material || c.engraving !== prev.engraving || c.font !== prev.font) this._redraw();
+    else if (c.material !== prev.material || c.engraving !== prev.engraving || c.font !== prev.font || c.print !== prev.print) this._redraw();
     if (c.material !== prev.material) this._applyMaterial();
     if (c.color !== prev.color) this.setColor(c.color, next.animate !== false);
     if (c.clasp !== prev.clasp) this.claspMesh.material.color.set(METALS[c.clasp] || c.clasp);
@@ -358,6 +407,7 @@ export class Band {
   _applyDevice() {
     const { geometry, spec, surfaceAt } = this.shape;
     this.strap.geometry = geometry;
+    this.printMesh.geometry = geometry;
     this.claspMesh.geometry = new RoundedBoxGeometry(0.24, 0.05, spec.w * 1.06, 2, 0.02);
     placeOnLoop(this.claspMesh, surfaceAt(CLASP_U, 0.022));
     this._buildPod();
@@ -382,27 +432,29 @@ export class Band {
     const g = this.colorCanvas.getContext('2d'), e = this.emiCanvas.getContext('2d');
     g.drawImage(patternCanvas(this.cfg.material, this.cfg.device), 0, 0);
     e.fillStyle = '#000'; e.fillRect(0, 0, TEX_W, TEX_H);
+    const faceH = PROFILE.faceV1 * TEX_H;
+    // compensate for different texel density along u vs v
+    const kx = (TEX_W / LOOP.len) / (TEX_H / PROFILE.len);
+
+    this._drawPrint(faceH, kx);
+
     const text = (this.cfg.engraving || '').trim();
     if (text) {
-      const arabic = /[؀-ۿ]/.test(text);
-      const faceH = PROFILE.faceV1 * TEX_H;
-      // compensate for different texel density along u vs v
-      const kx = (TEX_W / LOOP.len) / (TEX_H / PROFILE.len);
-      const family = arabic ? '"IBM Plex Sans Arabic"' : this.cfg.font === 'serif' ? '"Instrument Serif", serif' : '"Inter Tight", sans-serif';
-      const weight = this.cfg.font === 'serif' && !arabic ? 400 : 700;
+      const arabic = isArabic(text);
+      const font = fontFor(this.cfg.font, text);
       const draw = (ctx, fill) => {
         ctx.save();
         ctx.translate(ENGRAVE_U * TEX_W, faceH / 2);
         ctx.scale(kx, -1);
         let size = faceH * (arabic ? 0.42 : 0.46);
-        ctx.font = `${weight} ${size}px ${family}`;
+        ctx.font = `${font.weight} ${size}px ${font.family}`;
         if (!arabic) ctx.letterSpacing = `${size * 0.08}px`;
         const maxW = (TEX_W * 0.3) / kx;
         const w = ctx.measureText(text).width;
-        if (w > maxW) { size *= maxW / w; ctx.font = `${weight} ${size}px ${family}`; }
+        if (w > maxW) { size *= maxW / w; ctx.font = `${font.weight} ${size}px ${font.family}`; }
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillStyle = fill;
-        ctx.fillText(arabic || this.cfg.font === 'serif' ? text : text.toUpperCase(), 0, size * 0.04);
+        ctx.fillText(font.upper ? text.toUpperCase() : text, 0, size * 0.04);
         ctx.restore();
       };
       draw(g, 'rgba(70,70,70,0.92)');
@@ -410,6 +462,22 @@ export class Band {
     }
     this.map.needsUpdate = true;
     this.emap.needsUpdate = true;
+  }
+
+  _drawPrint(faceH, kx) {
+    const g = this.printCanvas.getContext('2d');
+    g.clearRect(0, 0, TEX_W, TEX_H);
+    const img = this.cfg.print;
+    this.printMesh.visible = !!(img && img.width);
+    if (this.printMesh.visible) {
+      const h = faceH * 0.9, w = Math.min((h * img.width) / img.height, (TEX_W * 0.28) / kx);
+      g.save();
+      g.translate(PRINT_U * TEX_W, faceH / 2);
+      g.scale(kx, -1);
+      g.drawImage(img, -w / 2, -h / 2, w, h);
+      g.restore();
+    }
+    this.printTex.needsUpdate = true;
   }
 
   _buildPod() {
@@ -446,16 +514,15 @@ export class Band {
     this.pod.add(body, cap);
   }
 
+  // Charms render as flat metal icons (sprites) that always turn to face the viewer.
   _buildCharms() {
     this.charmGroup.clear();
     const { surfaceAt } = this.shape;
     (this.cfg.charms || []).slice(0, CHARM_U.length).forEach((kind, i) => {
-      const m = makeCharm(kind, this.cfg.charmMetal, this.cfg.initial);
-      const s = surfaceAt(CHARM_U[i], 0.03);
-      m.position.copy(s.pos);
-      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), s.n);
-      m.rotateZ(Math.PI / 2 * (s.n.x > 0 ? 1 : -1));
-      this.charmGroup.add(m);
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: charmIconTexture(kind, this.cfg.charmMetal, this.cfg.initial), transparent: true, depthWrite: false, toneMapped: false }));
+      sprite.position.copy(surfaceAt(CHARM_U[i], 0.13).pos);
+      sprite.scale.setScalar(0.32);
+      this.charmGroup.add(sprite);
     });
   }
 }

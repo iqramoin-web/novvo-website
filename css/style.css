@@ -663,3 +663,113 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 
 /* per-device framing: the Garmin photo has more empty space around the band */
 .dev-card[data-dev='garmin'] .dev-card__img img { scale: 1.3; }
+
+/* ============ footer details ============ */
+.footer__contact { gap: 12px !important; }
+.footer__contact a, .footer__contact span { display: inline-flex; align-items: flex-start; gap: 10px; line-height: 1.4; }
+.footer__contact svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; fill: none; stroke: var(--fg); }
+.footer__social { display: flex; gap: 8px; margin-top: 18px; }
+.footer__social a { width: 40px; height: 40px; border-radius: 10px; background: var(--bg-2); display: grid; place-items: center; color: var(--fg); transition: background 0.3s, color 0.3s, transform 0.3s var(--ease); }
+.footer__social a:hover { background: var(--dark); color: #fff; transform: translateY(-2px); }
+.footer__social svg { width: 19px; height: 19px; }
+.footer__social svg[fill='none'], .footer__social svg:not([fill]) { fill: none; stroke: currentColor; }
+.footer__bottom { align-items: center; font-size: 13px; }
+.footer__legal { display: flex; gap: 20px; color: var(--fg-2); }
+.footer__legal a:hover { color: var(--fg); }
+
+/* ============ legal pages ============ */
+.legal__body { max-width: 760px; display: grid; gap: 26px; }
+.legal__pending { margin: 0; padding: 16px 18px; border-radius: 12px; background: var(--bg-2); color: var(--fg-2); }
+.legal__body h2 { margin: 0 0 6px; font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.legal__body p { margin: 0; }
+
+/* ============ product perks ============ */
+.perks { padding: clamp(80px, 12vh, 140px) var(--gutter); max-width: 1480px; margin: 0 auto; }
+.perks__head { margin-bottom: clamp(28px, 4vw, 48px); }
+.perks__head .display { margin-top: 12px; }
+.perks__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.perk { display: flex; gap: 16px; align-items: flex-start; padding: 22px; border-radius: 16px; background: var(--bg-2); transition: background 0.4s var(--ease), transform 0.4s var(--ease); }
+.perk:hover { background: var(--bg-3); transform: translateY(-3px); }
+.perk__icon { width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px; background: #fff; display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05); }
+.perk__icon svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.perk b { display: block; font-weight: 500; font-size: 17px; letter-spacing: -0.01em; }
+.perk p { margin: 4px 0 0; color: var(--fg-2); font-size: 14.5px; }
+.perks--compact { padding-inline: 0; padding-bottom: 0; }
+.perks--compact .perk { padding: 18px; }
+
+/* ============ engraving fonts & image print ============ */
+.seg--fonts button { font-size: 15px; height: 38px; }
+.opt__note { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
+.print-box { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+.print-drop { flex: 1; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; border-radius: 12px; border: 1.5px dashed var(--line-2); cursor: pointer; color: var(--fg-2); transition: border-color 0.3s, background 0.3s; overflow: hidden; }
+.print-drop:hover { border-color: var(--fg); background: var(--bg-2); }
+.print-drop.has-file { border-style: solid; border-color: var(--accent); color: var(--fg); }
+.print-drop svg { width: 20px; height: 20px; flex-shrink: 0; }
+.print-drop span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.print-rm { font-size: 13px; color: var(--muted); }
+
+/* ============ floating support: WhatsApp + assistant ============ */
+.support-wa, .support-bot { position: fixed; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 80; }
+.support-wa { inset-inline-start: 18px; display: flex; align-items: center; height: 54px; padding: 0 15px; gap: 0; border-radius: 99px; background: #25d366; color: #fff; box-shadow: 0 10px 30px rgba(37, 211, 102, 0.35); transition: gap 0.4s var(--ease), padding 0.4s var(--ease), transform 0.3s var(--ease); }
+.support-wa svg { width: 24px; height: 24px; flex-shrink: 0; }
+.support-wa__label { max-width: 0; overflow: hidden; white-space: nowrap; font-weight: 500; font-size: 14.5px; transition: max-width 0.45s var(--ease); }
+.support-wa:hover { gap: 10px; padding: 0 20px 0 15px; transform: translateY(-2px); }
+[dir='rtl'] .support-wa:hover { padding: 0 15px 0 20px; }
+.support-wa:hover .support-wa__label { max-width: 160px; }
+.support-bot { inset-inline-end: 18px; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.support-bot__launch { width: 56px; height: 56px; border-radius: 50%; background: var(--dark); color: #fff; display: grid; place-items: center; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25); transition: transform 0.3s var(--ease), background 0.3s; }
+.support-bot__launch:hover { transform: scale(1.06); background: #000; }
+.support-bot__launch svg { width: 24px; height: 24px; grid-area: 1 / 1; transition: transform 0.4s var(--ease), opacity 0.3s; }
+.support-bot__launch > span { grid-area: 1 / 1; display: grid; }
+.support-bot__launch .i-close { opacity: 0; transform: rotate(-90deg); }
+.support-bot[data-open='true'] .support-bot__launch .i-open { opacity: 0; transform: rotate(90deg); }
+.support-bot[data-open='true'] .support-bot__launch .i-close { opacity: 1; transform: none; }
+.support-panel { width: min(370px, calc(100vw - 36px)); height: min(540px, calc(100vh - 120px)); display: flex; flex-direction: column; border-radius: 20px; background: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2); overflow: hidden; transform-origin: bottom right; transform: translateY(16px) scale(0.96); opacity: 0; pointer-events: none; transition: transform 0.45s var(--ease), opacity 0.3s; }
+[dir='rtl'] .support-panel { transform-origin: bottom left; }
+.support-bot[data-open='true'] .support-panel { transform: none; opacity: 1; pointer-events: auto; }
+.support-panel__head { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; background: var(--dark); color: #fff; }
+.support-panel__avatar { width: 38px; height: 38px; border-radius: 10px; background: #fff; color: var(--brand); display: grid; place-items: center; }
+.support-panel__avatar .logo span { display: none; }
+.support-panel__avatar svg.mark { width: 20px; height: 20px; }
+.support-panel__head > div { flex: 1; display: grid; }
+.support-panel__head b { font-weight: 500; font-size: 15px; }
+.support-panel__head small { display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.65); font-size: 12px; }
+.support-panel__head small i { width: 7px; height: 7px; border-radius: 50%; background: #3ddc84; }
+.support-panel__x { width: 32px; height: 32px; border-radius: 8px; display: grid; place-items: center; color: rgba(255, 255, 255, 0.7); }
+.support-panel__x:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.support-panel__x svg { width: 14px; }
+.support-panel__log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: var(--bg-2); overscroll-behavior: contain; }
+.msg { max-width: 86%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.45; animation: msg-in 0.35s var(--ease); }
+@keyframes msg-in { from { opacity: 0; transform: translateY(6px); } }
+.msg--bot { align-self: flex-start; background: #fff; border-end-start-radius: 4px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+.msg--user { align-self: flex-end; background: var(--dark); color: #fff; border-end-end-radius: 4px; }
+.msg--chips { align-self: stretch; max-width: none; padding: 2px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn { padding: 7px 12px; border-radius: 99px; border: 1px solid var(--line-2); background: #fff; font-size: 13px; transition: 0.25s; }
+.chip-btn:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
+.msg__link { display: inline-block; margin-top: 6px; font-weight: 500; text-decoration: underline; }
+.msg__wa { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 7px 12px; border-radius: 99px; background: #25d366; color: #fff; font-size: 13px; font-weight: 500; }
+.msg__wa svg { width: 15px; height: 15px; }
+.dots { display: inline-flex; gap: 4px; padding: 3px 0; }
+.dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--soft); animation: dot 1s infinite; }
+.dots i:nth-child(2) { animation-delay: 0.15s; } .dots i:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dot { 50% { transform: translateY(-4px); opacity: 0.5; } }
+.support-panel__form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+.support-panel__form input { flex: 1; min-width: 0; height: 42px; padding: 0 14px; border-radius: 99px; border: 1px solid var(--line-2); background: #fff; }
+.support-panel__form input:focus { outline: none; border-color: var(--fg); }
+.support-panel__form button { width: 42px; height: 42px; border-radius: 50%; background: var(--dark); color: #fff; display: grid; place-items: center; }
+.support-panel__form button svg { width: 18px; }
+[dir='rtl'] .support-panel__form button svg { transform: scaleX(-1); }
+.toasts { bottom: calc(86px + env(safe-area-inset-bottom)); }
+
+@media (max-width: 900px) {
+  .perks__grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .perks__grid { grid-template-columns: 1fr; }
+  .footer__bottom { flex-direction: column; align-items: flex-start; }
+  .support-wa { height: 50px; padding: 0 13px; }
+  .support-bot__launch { width: 52px; height: 52px; }
+}
+
+/* keep the floating WhatsApp/assistant buttons clear of the last footer row */
+.footer { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }

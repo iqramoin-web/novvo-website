@@ -1,5 +1,5 @@
 // Cart, currency, promo and order state, persisted to localStorage.
-import { CURRENCIES, PROMOS, COUNTRIES, FREE_SHIPPING_MIN, ENGRAVING_PRICE, CHARM_ADDON_PRICE, getProduct } from './data.js';
+import { CURRENCIES, PROMOS, COUNTRIES, FREE_SHIPPING_MIN, ENGRAVING_PRICE, CHARM_ADDON_PRICE, PRINT_PRICE, getProduct } from './data.js';
 import { getLang } from './i18n.js';
 
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
@@ -30,6 +30,7 @@ export function unitPrice(item) {
   let price = p.price;
   if (item.engraving && !p.engravingIncluded) price += ENGRAVING_PRICE;
   price += (item.charms?.length || 0) * CHARM_ADDON_PRICE;
+  if (item.print) price += PRINT_PRICE;
   return price;
 }
 
@@ -38,7 +39,7 @@ export const cartCount = () => cart.reduce((n, i) => n + i.qty, 0);
 export const subtotal = () => cart.reduce((s, i) => s + unitPrice(i) * i.qty, 0);
 
 export function addToCart(item) {
-  const key = JSON.stringify([item.id, item.color, item.size, item.variant, item.clasp, item.engraving, item.font, item.charms, item.charmMetal, item.initial]);
+  const key = JSON.stringify([item.id, item.color, item.size, item.variant, item.clasp, item.engraving, item.font, item.charms, item.charmMetal, item.initial, item.print]);
   const existing = cart.find((i) => i.key === key);
   if (existing) existing.qty += item.qty || 1;
   else cart.push({ ...item, key, qty: item.qty || 1 });

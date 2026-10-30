@@ -1,11 +1,12 @@
 // App shell: router, nav, footer, cart drawer, loader, smooth scroll.
 import { t, L, setLang, getLang } from './i18n.js';
-import { COLORS, CURRENCIES, FREE_SHIPPING_MIN, getProduct } from './data.js';
+import { COLORS, CURRENCIES, FREE_SHIPPING_MIN, BRAND, getProduct } from './data.js';
 import * as store from './store.js';
 import { thumb } from './band3d.js';
 import { $, $$, esc, icon, logo, thumbImg, thumbSpec, productName, hydrateThumbs, toast, flyToCart } from './ui.js';
 import { homeView, mountHome, playHeroIntro } from './home.js';
 import * as P from './pages.js';
+import { mountSupport, refreshSupport } from './support.js';
 
 gsap.registerPlugin(ScrollTrigger);
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
@@ -42,7 +43,9 @@ function renderChrome() {
 const currencyOptions = () => Object.keys(CURRENCIES).map((c) => `<option value="${c}" ${c === store.getCurrency() ? 'selected' : ''}>${c}</option>`).join('');
 
 function renderFooter() {
-  const ar = getLang() === 'ar';
+  const lang = getLang();
+  const now = new Date().getFullYear();
+  const since = BRAND.since || '20XX';
   $('#footer').innerHTML = `
     <div class="footer__top">
       <div>
@@ -53,16 +56,24 @@ function renderFooter() {
       <div><h4>${t('ft.help')}</h4><ul>
         <li><a class="link-u" href="#/track">${t('nav.track')}</a></li>
         <li><a class="link-u" href="#/contact">${t('foot.faq')}</a></li>
-        <li><a class="link-u" href="#/contact">${t('foot.ship')}</a></li></ul></div>
-      <div><h4>${t('ft.contact')}</h4><ul>
-        <li><a class="link-u" href="https://wa.me/96500000000" target="_blank" rel="noopener">WhatsApp</a></li>
-        <li><a class="link-u" href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a></li>
-        <li><a class="link-u" href="mailto:hello@ordernovvo.com">hello@ordernovvo.com</a></li></ul></div>
+        <li><a class="link-u" href="#/terms">${t('legal.terms')}</a></li>
+        <li><a class="link-u" href="#/privacy">${t('legal.privacy')}</a></li></ul></div>
+      <div><h4>${t('ft.contact')}</h4>
+        <ul class="footer__contact">
+          <li><a class="link-u" href="${BRAND.phoneHref}" dir="ltr">${icon.phone}${esc(BRAND.phone)}</a></li>
+          <li><a class="link-u" href="mailto:${BRAND.email}">${icon.mail}${esc(BRAND.email)}</a></li>
+          <li><span>${icon.pin}${esc(BRAND.address[lang] || BRAND.address.en)}</span></li>
+        </ul>
+        <div class="footer__social">
+          <a href="https://instagram.com/${BRAND.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${icon.ig}</a>
+          <a href="https://wa.me/${BRAND.whatsapp}" target="_blank" rel="noopener" aria-label="WhatsApp">${icon.wa}</a>
+        </div>
+      </div>
     </div>
     <div class="footer__brand" aria-hidden="true">${logo(true)}</div>
-    <div class="footer__bottom mono">
-      <span>© ${new Date().getFullYear()} NOVVO. ${t('foot.rights')}</span>
-      <span>${t('foot.made')} · ${ar ? 'الكويت' : 'Kuwait'}</span>
+    <div class="footer__bottom">
+      <span>© ${since}–${now} NOVVO. ${t('foot.rights')}</span>
+      <nav class="footer__legal"><a class="link-u" href="#/terms">${t('legal.terms')}</a><a class="link-u" href="#/privacy">${t('legal.privacy')}</a></nav>
       <div class="pay-icons"><span>KNET</span><span>VISA</span><span>MC</span><span>PAY</span></div>
     </div>`;
   $('#newsForm').addEventListener('submit', (e) => { e.preventDefault(); e.target.reset(); toast(t('news.ok')); });
@@ -94,7 +105,7 @@ function renderDrawer() {
     <div class="drawer__items">${items.map((i) => {
       const p = getProduct(i.id);
       if (!p) return '';
-      const meta = [L(COLORS[i.color]), i.size && `${t('cart.size')} ${i.size}`, i.variant, i.engraving && `${t('cart.engraved')}: “${esc(i.engraving)}”`, i.charms?.length && `${t('pdp.charms')}: ${i.charms.join(', ')}`].filter(Boolean);
+      const meta = [L(COLORS[i.color]), i.size && `${t('cart.size')} ${i.size}`, i.variant, i.engraving && `${t('cart.engraved')}: “${esc(i.engraving)}”`, i.charms?.length && `${t('pdp.charms')}: ${i.charms.join(', ')}`, i.print && `${t('print.cart')}: ${esc(i.print)}`].filter(Boolean);
       return `<div class="line-item">
         <a class="line-item__img" href="#/product/${p.id}">${thumbImg(thumbSpec(p, i.color))}</a>
         <div><h4>${esc(productName(p))}</h4><ul>${meta.map((m) => `<li>${m}</li>`).join('')}</ul>
@@ -145,6 +156,7 @@ async function quickAdd(id, color, btn) {
 function switchLang() {
   setLang(getLang() === 'ar' ? 'en' : 'ar');
   renderChrome();
+  refreshSupport();
   route({ force: true });
 }
 $('#langBtn').addEventListener('click', switchLang);
@@ -185,6 +197,7 @@ function resolve() {
   if (a === 'order') return { name: 'order', html: () => P.confirmView(b), mount: (r) => P.mountConfirm(r, { id: b }) };
   if (a === 'track') return { name: 'track', html: () => P.trackView(b), mount: (r) => P.mountTrack(r, { id: b }) };
   if (a === 'contact') return { name: 'contact', html: P.contactView, mount: P.mountContact };
+  if (a === 'terms' || a === 'privacy') return { name: a, html: () => P.legalView(a), mount: () => {} };
   return { name: '404', html: () => `<section class="page"><h1 class="display h1">404</h1><p class="lead">${t('404')}</p><a class="btn" href="#/">NOVVO</a></section>`, mount: () => {} };
 }
 
@@ -251,6 +264,7 @@ async function boot() {
   window.scrollTo(0, 0);
   lenis.scrollTo(0, { immediate: true, force: true });
   document.body.classList.remove('is-loading');
+  mountSupport();
   if (resolve().name === 'home') playHeroIntro(view);
   ScrollTrigger.refresh();
 }

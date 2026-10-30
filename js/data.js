@@ -148,3 +148,51 @@ export const CURRENCIES = {
 };
 
 export const getProduct = (id) => PRODUCTS.find((p) => p.id === id);
+
+// ---------- Brand details ----------
+// PLACEHOLDERS: replace once NOVVO confirms inception year, phone, Instagram and address.
+export const BRAND = {
+  since: null,                         // e.g. 2023; shown as "20XX" until confirmed
+  phone: '+965 XXXX XXXX',
+  phoneHref: 'tel:+96500000000',
+  whatsapp: '96500000000',             // digits only, used for wa.me links
+  instagram: 'ordernovvo',
+  email: 'hello@ordernovvo.com',
+  address: {
+    en: 'Block X, Street X, Building X, Kuwait City, Kuwait',
+    ar: 'قطعة X، شارع X، مبنى X، مدينة الكويت، الكويت',
+  },
+};
+
+// ---------- Engraving & printing ----------
+// PLACEHOLDERS pending confirmation from Joel (fonts offered, Arabic support, printable materials).
+export const ENGRAVING_FONTS = {
+  en: [
+    { id: 'sans', family: '"Inter Tight", sans-serif', weight: 700, upper: true, label: { en: 'Modern', ar: 'عصري' } },
+    { id: 'serif', family: '"Instrument Serif", serif', weight: 400, label: { en: 'Classic', ar: 'كلاسيكي' } },
+    { id: 'mono', family: '"JetBrains Mono", monospace', weight: 500, upper: true, label: { en: 'Technical', ar: 'تقني' } },
+  ],
+  ar: [
+    { id: 'ar-plex', family: '"IBM Plex Sans Arabic", sans-serif', weight: 700, label: { en: 'Modern', ar: 'عصري' } },
+    { id: 'ar-naskh', family: '"Amiri", serif', weight: 700, label: { en: 'Naskh', ar: 'نسخ' } },
+    { id: 'ar-kufi', family: '"Reem Kufi", sans-serif', weight: 600, label: { en: 'Kufi', ar: 'كوفي' } },
+  ],
+};
+export const isArabic = (s) => /[؀-ۿ]/.test(s || '');
+export const fontFor = (id, text) => {
+  const set = isArabic(text) ? ENGRAVING_FONTS.ar : ENGRAVING_FONTS.en;
+  return set.find((f) => f.id === id) || set[0];
+};
+export const PRINTABLE_MATERIALS = ['silicone', 'sportflex'];
+export const PRINT_PRICE = 3;
+
+// ---------- Product perks ----------
+// PLACEHOLDERS until the factory questionnaire comes back.
+export const PERKS = [
+  { icon: 'drop',    t: { en: 'Sweat & water resistant', ar: 'مقاوم للعرق والماء' }, d: { en: 'Built for training, swimming and Gulf summers.', ar: 'مصمم للتمارين والسباحة وصيف الخليج.' } },
+  { icon: 'leaf',    t: { en: 'Skin-friendly', ar: 'لطيف على البشرة' }, d: { en: 'Hypoallergenic, latex-free materials for all-day wear.', ar: 'خامات مضادة للحساسية وخالية من اللاتكس للارتداء طوال اليوم.' } },
+  { icon: 'wind',    t: { en: 'Breathable', ar: 'قابل للتهوية' }, d: { en: 'Airy weaves keep your wrist cool and dry.', ar: 'نسيج متجدد الهواء يحافظ على برودة وجفاف معصمك.' } },
+  { icon: 'lock',    t: { en: 'Secure fit', ar: 'ثبات محكم' }, d: { en: 'Cut for each pod so it clicks in and never slips.', ar: 'مقصوص لكل جهاز ليثبت بإحكام ولا ينزلق.' } },
+  { icon: 'shield',  t: { en: 'Built to last', ar: 'متين ويدوم' }, d: { en: 'Colourfast fibres and reinforced edges.', ar: 'ألياف ثابتة اللون وحواف مقوّاة.' } },
+  { icon: 'sun',     t: { en: 'Quick-dry', ar: 'سريع الجفاف' }, d: { en: 'Dries fast after a workout or a swim.', ar: 'يجف بسرعة بعد التمرين أو السباحة.' } },
+];

@@ -1,9 +1,9 @@
 // Inner pages: shop, product configurator, checkout, confirmation, tracking, contact.
 import { t, L, getLang } from './i18n.js';
-import { COLORS, MATERIALS, DEVICES, SIZES, PRODUCTS, COUNTRIES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, getProduct } from './data.js';
+import { COLORS, MATERIALS, DEVICES, SIZES, PRODUCTS, COUNTRIES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, BRAND, PERKS, ENGRAVING_FONTS, PRINTABLE_MATERIALS, PRINT_PRICE, isArabic, getProduct } from './data.js';
 import * as store from './store.js';
 import { Band, Stage, makeCharm, thumb } from './band3d.js';
-import { $, $$, esc, icon, charmIcon, card, bindCards, hydrateThumbs, thumbImg, thumbSpec, productName, toast, flyToCart, reveal } from './ui.js';
+import { $, $$, esc, icon, charmIcon, card, bindCards, hydrateThumbs, thumbImg, thumbSpec, productName, toast, flyToCart, reveal, perksSection } from './ui.js';
 
 const go = (h) => (location.hash = h);
 
@@ -123,9 +123,22 @@ export function productView(id) {
           </div>
           <div class="engrave-box" id="engBox" ${p.engravingIncluded ? '' : 'hidden'}>
             <input class="input" id="engText" maxlength="14" placeholder="${esc(t('eng.placeholder'))}" autocomplete="off" />
-            <div class="seg" id="engFont"><button type="button" class="is-on" data-font="sans">${t('eng.sans')}</button><button type="button" data-font="serif">${t('eng.serif')}</button></div>
+            <div class="seg seg--fonts" id="engFont"></div>
+            <p class="opt__note">${t('eng.fontsAr')}</p>
           </div>
         </div>
+        ${PRINTABLE_MATERIALS.includes(p.material) ? `
+        <div class="opt">
+          <div class="toggle-row">
+            <div><b>${t('print.title')}</b><div class="muted" style="font-size:13px">${t('print.hint')}</div></div>
+            <span class="mono muted">+${store.money(PRINT_PRICE)}</span>
+          </div>
+          <div class="print-box">
+            <label class="print-drop" id="printDrop"><input type="file" accept="image/png,image/jpeg,image/webp" id="printFile" hidden />${icon.upload}<span id="printName">${t('print.choose')}</span></label>
+            <button type="button" class="print-rm link-u" id="printRm" hidden>${t('print.remove')}</button>
+          </div>
+          <p class="opt__note">${t('print.pending')}</p>
+        </div>` : ''}
         <div class="opt"><div class="opt__head"><b>${t('pdp.charms')}</b><span class="mono muted">+${store.money(CHARM_ADDON_PRICE)} / ea</span></div>
           <div class="toggle-row" style="justify-content:flex-start;flex-wrap:wrap">
             <div class="charm-toggles" id="optCharms">${['star', 'heart', 'bolt', 'disc'].map((c) => `<button type="button" class="charm-toggle" data-charm="${c}" aria-label="${c}">${charmIcon[c]}</button>`).join('')}</div>
@@ -156,6 +169,8 @@ export function productView(id) {
         </div>
       </div>
     </div>
+
+    ${perksSection(PERKS, { compact: true })}
 
     <div class="section" style="padding-inline:0">
       <div class="section__head"><h2 class="display h2">${t('pdp.related')}</h2></div>
@@ -194,6 +209,7 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     front: { x: 0.4, y: -0.5, z: 0.06 },
     top: { x: 1.2, y: 0, z: 0 },
     engrave: { x: -1.15, y: 0, z: 0 },
+    print: { x: 0.12, y: Math.PI / 2, z: 0 },
   };
   const setView = (v) => {
     if (!band) return;
@@ -203,12 +219,12 @@ export function mountProduct(root, { id, onQuick, openCart }) {
   };
   root.querySelector('.views')?.addEventListener('click', (e) => { const b = e.target.closest('[data-view]'); if (b) setView(b.dataset.view); });
 
-  const unit = () => p.price + (st.engrave && st.engraving.trim() && !p.engravingIncluded ? ENGRAVING_PRICE : 0) + st.charms.length * CHARM_ADDON_PRICE;
+  const unit = () => p.price + (st.engrave && st.engraving.trim() && !p.engravingIncluded ? ENGRAVING_PRICE : 0) + st.charms.length * CHARM_ADDON_PRICE + (st.print ? PRINT_PRICE : 0);
   const refresh = () => {
     $('#pdpPrice', root).textContent = store.money(unit());
     $('#addPrice', root).textContent = store.money(unit() * st.qty);
     $('#qty', root).textContent = st.qty;
-    if (band) band.set({ color: COLORS[st.color].hex, clasp: st.clasp, engraving: st.engrave ? st.engraving : '', font: st.font, charms: st.charms, charmMetal: st.charmMetal, initial: st.initial });
+    if (band) band.set({ color: COLORS[st.color].hex, clasp: st.clasp, engraving: st.engrave ? st.engraving : '', font: st.font, charms: st.charms, charmMetal: st.charmMetal, initial: st.initial, print: st.print || null });
     const ini = $('#optInitial', root);
     if (ini && !isCharm) ini.style.display = st.charms.includes('disc') ? '' : 'none';
   };
@@ -247,11 +263,45 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     refresh();
   });
   let engViewed = false;
+  // engraving fonts come from ENGRAVING_FONTS; the Arabic set is used for Arabic text
+  const renderFonts = () => {
+    const box = $('#engFont', root); if (!box) return;
+    const set = isArabic(st.engraving) ? ENGRAVING_FONTS.ar : ENGRAVING_FONTS.en;
+    if (!set.some((f) => f.id === st.font)) st.font = set[0].id;
+    box.innerHTML = set.map((f) => `<button type="button" class="${f.id === st.font ? 'is-on' : ''}" data-font="${f.id}" style="font-family:${f.family.replace(/"/g, "'")};font-weight:${f.weight}">${esc(L(f.label))}</button>`).join('');
+  };
+  renderFonts();
   $('#engText', root)?.addEventListener('input', (e) => {
+    const wasArabic = isArabic(st.engraving);
     st.engraving = e.target.value;
+    if (isArabic(st.engraving) !== wasArabic) renderFonts();
     if (!engViewed) { engViewed = true; setView('engrave'); }
     refresh();
   });
+  // customer image print
+  const printFile = $('#printFile', root);
+  printFile?.addEventListener('change', () => {
+    const f = printFile.files?.[0]; if (!f) return;
+    const img = new Image();
+    img.onload = () => {
+      st.print = img; st.printName = f.name;
+      $('#printName', root).textContent = f.name;
+      $('#printRm', root).hidden = false;
+      $('#printDrop', root).classList.add('has-file');
+      setView('print');
+      refresh();
+    };
+    img.src = URL.createObjectURL(f);
+  });
+  $('#printRm', root)?.addEventListener('click', () => {
+    st.print = null; st.printName = '';
+    printFile.value = '';
+    $('#printName', root).textContent = t('print.choose');
+    $('#printRm', root).hidden = true;
+    $('#printDrop', root).classList.remove('has-file');
+    refresh();
+  });
+
   $('.qty', root).addEventListener('click', (e) => {
     const b = e.target.closest('[data-q]'); if (!b) return;
     st.qty = Math.max(1, Math.min(20, st.qty + +b.dataset.q)); refresh();
@@ -262,6 +312,8 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     if (!isCharm) Object.assign(item, { size: st.size, variant: st.variant, charms: st.charms, charmMetal: st.charms.length ? st.charmMetal : undefined, initial: st.charms.includes('disc') ? st.initial : undefined });
     if (['nylon', 'leather'].includes(p.material)) item.clasp = st.clasp;
     if (st.engrave && st.engraving.trim()) Object.assign(item, { engraving: st.engraving.trim(), font: st.font });
+    // the image itself would be uploaded with the order once a backend exists; the cart keeps the file name
+    if (st.print) item.print = st.printName;
     if (isCharm && p.shape === 'disc') item.initial = st.initial;
     store.addToCart(item);
     const src = await thumb(thumbSpec(p, st.color));
@@ -529,9 +581,9 @@ export function contactView() {
         <h1 class="display h1" style="margin-top:14px">${t('ct.title')}</h1>
         <p class="lead">${t('ct.sub')}</p>
         <div class="contact__cards">
-          <a class="c-card" href="https://wa.me/96500000000" target="_blank" rel="noopener">${icon.chat}<div><b>${t('ct.wa')}</b><small class="mono">+965 0000 0000</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
-          <a class="c-card" href="https://instagram.com/" target="_blank" rel="noopener">${icon.ig}<div><b>${t('ct.ig')}</b><small class="mono">@novvo</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
-          <a class="c-card" href="mailto:hello@ordernovvo.com">${icon.mail}<div><b>${t('ct.mail')}</b><small class="mono">hello@ordernovvo.com</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
+          <a class="c-card" href="https://wa.me/${BRAND.whatsapp}" target="_blank" rel="noopener">${icon.chat}<div><b>${t('ct.wa')}</b><small class="mono" dir="ltr">${esc(BRAND.phone)}</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
+          <a class="c-card" href="https://instagram.com/${BRAND.instagram}" target="_blank" rel="noopener">${icon.ig}<div><b>${t('ct.ig')}</b><small class="mono">@${esc(BRAND.instagram)}</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
+          <a class="c-card" href="mailto:${BRAND.email}">${icon.mail}<div><b>${t('ct.mail')}</b><small class="mono">${esc(BRAND.email)}</small></div>${icon.arrow.replace('<svg', '<svg width="18"')}</a>
           <div class="c-card">${icon.clock}<div><b>${t('ct.hours')}</b></div></div>
         </div>
       </div>
@@ -568,4 +620,34 @@ export function mountContact(root) {
     toast(t('ct.ok'));
   });
   reveal(root);
+}
+
+// ================= LEGAL (placeholder until NOVVO sends the final policies) =================
+const LEGAL_SECTIONS = {
+  terms: {
+    en: ['Orders & pricing', 'Delivery', 'Engraving & personalisation', 'Exchanges & returns', 'Liability', 'Governing law'],
+    ar: ['الطلبات والأسعار', 'التوصيل', 'النقش والتخصيص', 'الاستبدال والاسترجاع', 'المسؤولية', 'القانون المعمول به'],
+  },
+  privacy: {
+    en: ['Information we collect', 'How we use it', 'Payments', 'Cookies', 'Your rights', 'Contact'],
+    ar: ['المعلومات التي نجمعها', 'كيف نستخدمها', 'المدفوعات', 'ملفات تعريف الارتباط', 'حقوقك', 'التواصل'],
+  },
+};
+
+export function legalView(kind) {
+  const lang = getLang();
+  const title = t(kind === 'terms' ? 'legal.terms' : 'legal.privacy');
+  return `
+  <section class="page legal">
+    <div class="page-head" style="display:block">
+      <div class="crumbs mono"><a href="#/">NOVVO</a><span>/</span><span>${esc(title)}</span></div>
+      <h1 class="display h1">${esc(title)}</h1>
+      <p class="mono muted" style="margin-top:14px">${t('legal.updated')}: —</p>
+    </div>
+    <div class="legal__body">
+      <p class="legal__pending">${t('legal.pending')}</p>
+      ${LEGAL_SECTIONS[kind][lang].map((h, i) => `<section><h2>${i + 1}. ${esc(h)}</h2><p class="muted">—</p></section>`).join('')}
+      <p><a class="arrow-l link-u" href="#/contact">${icon.arrow}${t('legal.contact')}</a></p>
+    </div>
+  </section>`;
 }

@@ -1,10 +1,10 @@
 // Home page (light edition): scroll-expanding hero video, device shop panel,
 // live 3D customizer, reviews, how-it-works, materials, FAQ.
 import { t, L, isRTL, getLang } from './i18n.js';
-import { COLORS, MATERIALS, PRODUCTS, DEVICES, SIZES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, getProduct } from './data.js';
+import { COLORS, MATERIALS, PRODUCTS, DEVICES, SIZES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, PERKS, getProduct } from './data.js';
 import { Band, Stage, thumb } from './band3d.js';
 import * as store from './store.js';
-import { $, $$, esc, icon, charmIcon, card, bindCards, hydrateThumbs, thumbImg, thumbSpec, productName, reveal, toast, flyToCart } from './ui.js';
+import { $, $$, esc, icon, charmIcon, card, bindCards, hydrateThumbs, thumbImg, thumbSpec, productName, reveal, toast, flyToCart, perksSection } from './ui.js';
 
 // Drop an AI-generated clip here to replace the 3D fallback in the hero.
 const HERO_VIDEO = 'assets/hero.mp4';
@@ -136,6 +136,8 @@ export function homeView() {
       <div class="custom__buy"><div><span class="mono muted">${t('cz.total')}</span><br><b id="czPrice"></b></div><button class="btn btn--accent" type="button" id="czAdd">${t('h.add')} ${icon.arrow}</button></div>
     </div>
   </section>
+
+  ${perksSection(PERKS)}
 
   <section class="reviews">
     <div class="reviews__head">
