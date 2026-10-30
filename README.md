@@ -47,6 +47,17 @@ Suggested prompt (Veo 3 / Kling / Runway):
 `assets/devices/` holds official product photos taken from whoop.com (cropped to the band), garmin.com (background removed) and the Google Store (Fitbit Air).
 They are the manufacturers' copyrighted images. Confirm you're allowed to use them (or swap in your own photography) before launch.
 
+## Pending client details (all in `js/data.js`)
+| What | Where | Waiting on |
+| --- | --- | --- |
+| Inception year, phone, WhatsApp, Instagram, email, address | `BRAND` | NOVVO |
+| Terms & Conditions, Privacy Policy text | `LEGAL_SECTIONS` / `legalView` in `js/pages.js` | NOVVO |
+| Product perks (benefit titles and copy) | `PERKS` | Factory questionnaire |
+| Engraving fonts (English and Arabic) | `ENGRAVING_FONTS` | Joel |
+| Which materials support printing, print price | `PRINTABLE_MATERIALS`, `PRINT_PRICE` | Joel |
+
+The assistant (`js/support.js`) is rule-based and needs no backend. Its answers live in `js/i18n.js` under `bot.a.*`.
+
 ## Placeholders to replace before launch
 - WhatsApp number, Instagram/TikTok handles and email in `js/pages.js` and `js/app.js`
 - Customer reviews in `js/home.js` (sample copy)
