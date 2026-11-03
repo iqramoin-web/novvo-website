@@ -48,18 +48,18 @@ export const PRODUCTS = [
   { id: 'whoop-classic', device: 'whoop', material: 'nylon', price: 10, featured: true, badge: 'best',
     colors: ['aqua', 'bone', 'ember', 'onyx', 'sage', 'lilac'],
     name: { en: 'Classic Loop', ar: 'كلاسيك لوب' },
-    desc: { en: 'A breathable, hook-and-loop nylon weave with a metal clasp. The everyday WHOOP strap that disappears on your wrist.',
-            ar: 'نسيج نايلون قابل للتهوية بإغلاق لاصق ومشبك معدني. الحزام اليومي لـ WHOOP الذي تنساه على معصمك.' } },
+    desc: { en: 'A breathable 100% nylon weave with a 316L stainless steel clasp. The everyday WHOOP strap, comfortable from morning to night.',
+            ar: 'نسيج نايلون ١٠٠٪ قابل للتهوية مع مشبك من الستانلس ستيل 316L. حزام WHOOP اليومي، مريح من الصباح حتى المساء.' } },
   { id: 'whoop-silicone', device: 'whoop', material: 'silicone', price: 8, featured: true,
     colors: ['onyx', 'bone', 'mint', 'crimson', 'navy', 'blush'],
     name: { en: 'Silicone Sport', ar: 'سيليكون سبورت' },
-    desc: { en: 'Medical-grade silicone that shrugs off sweat, chlorine and sand. Built for training days and long swims.',
-            ar: 'سيليكون طبي مقاوم للعرق والكلور والرمل. مصمم لأيام التمرين والسباحة الطويلة.' } },
+    desc: { en: '100% silicone that keeps its shape and colour with everyday wear. Made for training days and Gulf summers.',
+            ar: 'سيليكون ١٠٠٪ يحافظ على شكله ولونه مع الاستخدام اليومي. مصمم لأيام التمرين وصيف الخليج.' } },
   { id: 'whoop-leather', device: 'whoop', material: 'leather', price: 15, featured: true, badge: 'new',
     colors: ['cognac', 'onyx', 'sand', 'navy'],
     name: { en: 'Leather Luxe', ar: 'جلد لوكس' },
-    desc: { en: 'Full-grain leather with contrast hand-finished stitching. From the boardroom to the diwaniya.',
-            ar: 'جلد طبيعي بخياطة يدوية متباينة. من الاجتماعات إلى الديوانية.' } },
+    desc: { en: 'Full leather with contrast stitching and zinc-alloy hardware. From the boardroom to the diwaniya.',
+            ar: 'جلد كامل بخياطة متباينة وقطع معدنية من سبيكة الزنك. من الاجتماعات إلى الديوانية.' } },
   { id: 'whoop-sportflex', device: 'whoop', material: 'sportflex', price: 9,
     colors: ['onyx', 'ember', 'slate', 'mint', 'bone'],
     name: { en: 'Sport Flex', ar: 'سبورت فليكس' },
@@ -78,18 +78,18 @@ export const PRODUCTS = [
   { id: 'garmin-classic', device: 'garmin', material: 'nylon', price: 10, featured: true,
     colors: ['sand', 'olive', 'onyx', 'lilac'],
     name: { en: 'Classic Loop', ar: 'كلاسيك لوب' },
-    desc: { en: 'Soft nylon weave cut precisely for the Garmin Cirqa pod. Quick-adjust, all-day comfort.',
+    desc: { en: 'Soft 100% nylon weave cut precisely for the Garmin Cirqa pod. Quick-adjust, all-day comfort.',
             ar: 'نسيج نايلون ناعم مقصوص بدقة لجهاز Garmin Cirqa. تعديل سريع وراحة طوال اليوم.' } },
   { id: 'garmin-silicone', device: 'garmin', material: 'silicone', price: 8,
     colors: ['onyx', 'bone', 'sage', 'ember'],
     name: { en: 'Silicone Sport', ar: 'سيليكون سبورت' },
-    desc: { en: 'Waterproof silicone for the Cirqa. Rinse, dry, repeat.',
-            ar: 'سيليكون مقاوم للماء لجهاز Cirqa. اشطفه، جففه، كرر.' } },
+    desc: { en: '100% silicone cut for the Garmin Cirqa, made to handle GCC heat and humidity.',
+            ar: 'سيليكون ١٠٠٪ مقصوص لجهاز Garmin Cirqa، مصمم لتحمّل حرارة ورطوبة الخليج.' } },
   { id: 'garmin-leather', device: 'garmin', material: 'leather', price: 15,
     colors: ['cognac', 'onyx', 'sand'],
     name: { en: 'Leather Luxe', ar: 'جلد لوكس' },
-    desc: { en: 'Full-grain leather for the Cirqa with tonal stitching.',
-            ar: 'جلد طبيعي لجهاز Cirqa بخياطة متناسقة.' } },
+    desc: { en: 'Full leather for the Cirqa with tonal stitching and zinc-alloy hardware.',
+            ar: 'جلد كامل لجهاز Cirqa بخياطة متناسقة وقطع معدنية من سبيكة الزنك.' } },
   { id: 'fitbit-classic', device: 'fitbit', material: 'nylon', price: 10, featured: true, badge: 'new',
     colors: ['blush', 'aqua', 'bone', 'onyx'],
     name: { en: 'Classic Loop', ar: 'كلاسيك لوب' },
@@ -105,18 +105,18 @@ export const PRODUCTS = [
     name: { en: 'Sport Flex', ar: 'سبورت فليكس' },
     desc: { en: 'Ventilated flex rubber for the Fitbit Air.',
             ar: 'مطاط مرن مهوّى لجهاز Fitbit Air.' } },
-  { id: 'charm-star', device: 'charms', kind: 'charm', shape: 'star', price: 3, colors: ['gold', 'silver', 'rose'],
+  { id: 'charm-star', device: 'charms', kind: 'charm', shape: 'star', price: 3, colors: ['gold', 'silver'],
     name: { en: 'Star Charm', ar: 'تعليقة نجمة' },
-    desc: { en: 'Clips onto any NOVVO strap. Stainless steel, PVD-coated.', ar: 'تُثبّت على أي حزام من NOVVO. ستانلس ستيل بطلاء PVD.' } },
-  { id: 'charm-heart', device: 'charms', kind: 'charm', shape: 'heart', price: 3, colors: ['gold', 'silver', 'rose'],
+    desc: { en: 'Clips onto any NOVVO strap. Copper with gold or silver plating and Czech-style rhinestones.', ar: 'تُثبّت على أي حزام من NOVVO. نحاس مطلي بالذهب أو الفضة مع أحجار راين ستون بأسلوب تشيكي.' } },
+  { id: 'charm-heart', device: 'charms', kind: 'charm', shape: 'heart', price: 3, colors: ['gold', 'silver'],
     name: { en: 'Heart Charm', ar: 'تعليقة قلب' },
-    desc: { en: 'Clips onto any NOVVO strap. Stainless steel, PVD-coated.', ar: 'تُثبّت على أي حزام من NOVVO. ستانلس ستيل بطلاء PVD.' } },
-  { id: 'charm-bolt', device: 'charms', kind: 'charm', shape: 'bolt', price: 3, colors: ['gold', 'silver', 'rose'],
+    desc: { en: 'Clips onto any NOVVO strap. Copper with gold or silver plating and Czech-style rhinestones.', ar: 'تُثبّت على أي حزام من NOVVO. نحاس مطلي بالذهب أو الفضة مع أحجار راين ستون بأسلوب تشيكي.' } },
+  { id: 'charm-bolt', device: 'charms', kind: 'charm', shape: 'bolt', price: 3, colors: ['gold', 'silver'],
     name: { en: 'Bolt Charm', ar: 'تعليقة برق' },
-    desc: { en: 'Clips onto any NOVVO strap. Stainless steel, PVD-coated.', ar: 'تُثبّت على أي حزام من NOVVO. ستانلس ستيل بطلاء PVD.' } },
-  { id: 'charm-initial', device: 'charms', kind: 'charm', shape: 'disc', price: 4, colors: ['gold', 'silver', 'rose'],
+    desc: { en: 'Clips onto any NOVVO strap. Copper with gold or silver plating and Czech-style rhinestones.', ar: 'تُثبّت على أي حزام من NOVVO. نحاس مطلي بالذهب أو الفضة مع أحجار راين ستون بأسلوب تشيكي.' } },
+  { id: 'charm-initial', device: 'charms', kind: 'charm', shape: 'disc', price: 4, colors: ['gold', 'silver'],
     name: { en: 'Initial Charm', ar: 'تعليقة الحرف' },
-    desc: { en: 'A polished disc engraved with your initial.', ar: 'قرص مصقول منقوش بالحرف الأول من اسمك.' } },
+    desc: { en: 'A gold- or silver-plated copper disc engraved with your initial.', ar: 'قرص نحاسي مطلي بالذهب أو الفضة منقوش بالحرف الأول من اسمك.' } },
 ];
 
 export const CHARM_SHAPES = ['star', 'heart', 'bolt', 'disc'];
@@ -150,49 +150,72 @@ export const CURRENCIES = {
 export const getProduct = (id) => PRODUCTS.find((p) => p.id === id);
 
 // ---------- Brand details ----------
-// PLACEHOLDERS: replace once NOVVO confirms inception year, phone, Instagram and address.
+// Confirmed by NOVVO (Nov 2026). Instagram handle and email still to be confirmed.
 export const BRAND = {
-  since: null,                         // e.g. 2023; shown as "20XX" until confirmed
-  phone: '+965 XXXX XXXX',
-  phoneHref: 'tel:+96500000000',
-  whatsapp: '96500000000',             // digits only, used for wa.me links
+  since: 2025,
+  phone: '+965 6075 5440',
+  phoneHref: 'tel:+96560755440',
+  whatsapp: '96560755440',             // digits only, used for wa.me links (assumed same as phone)
   instagram: 'ordernovvo',
   email: 'hello@ordernovvo.com',
+  // Home-business licence: this is a residential address
   address: {
-    en: 'Block X, Street X, Building X, Kuwait City, Kuwait',
-    ar: 'قطعة X، شارع X، مبنى X، مدينة الكويت، الكويت',
+    en: 'Mubarak Al Abdullah, Block 3, Street 301, Plot 584, Hawalli Governorate, Kuwait',
+    ar: 'مبارك العبدالله، قطعة ٣، شارع ٣٠١، قسيمة ٥٨٤، محافظة حولي، الكويت',
   },
 };
 
-// ---------- Engraving & printing ----------
-// PLACEHOLDERS pending confirmation from Joel (fonts offered, Arabic support, printable materials).
-export const ENGRAVING_FONTS = {
-  en: [
-    { id: 'sans', family: '"Inter Tight", sans-serif', weight: 700, upper: true, label: { en: 'Modern', ar: 'عصري' } },
-    { id: 'serif', family: '"Instrument Serif", serif', weight: 400, label: { en: 'Classic', ar: 'كلاسيكي' } },
-    { id: 'mono', family: '"JetBrains Mono", monospace', weight: 500, upper: true, label: { en: 'Technical', ar: 'تقني' } },
-  ],
-  ar: [
-    { id: 'ar-plex', family: '"IBM Plex Sans Arabic", sans-serif', weight: 700, label: { en: 'Modern', ar: 'عصري' } },
-    { id: 'ar-naskh', family: '"Amiri", serif', weight: 700, label: { en: 'Naskh', ar: 'نسخ' } },
-    { id: 'ar-kufi', family: '"Reem Kufi", sans-serif', weight: 600, label: { en: 'Kufi', ar: 'كوفي' } },
-  ],
+// ---------- Materials (from the product & material questionnaire, 28.10.2026) ----------
+export const MATERIAL_FACTS = {
+  nylon:    { en: '100% nylon · 316L stainless steel clasp', ar: 'نايلون ١٠٠٪ · مشبك ستانلس ستيل 316L' },
+  silicone: { en: '100% silicone · 316L stainless steel clasp', ar: 'سيليكون ١٠٠٪ · مشبك ستانلس ستيل 316L' },
+  leather:  { en: 'Full leather · zinc-alloy hardware', ar: 'جلد كامل · قطع معدنية من سبيكة الزنك' },
+  sportflex:{ en: 'Sport flex · 316L stainless steel clasp', ar: 'سبورت فليكس · مشبك ستانلس ستيل 316L' },
+  charms:   { en: 'Copper, gold or silver plating, Czech-style rhinestones', ar: 'نحاس مطلي بالذهب أو الفضة مع أحجار راين ستون تشيكية' },
 };
-export const isArabic = (s) => /[؀-ۿ]/.test(s || '');
-export const fontFor = (id, text) => {
-  const set = isArabic(text) ? ENGRAVING_FONTS.ar : ENGRAVING_FONTS.en;
-  return set.find((f) => f.id === id) || set[0];
-};
-export const PRINTABLE_MATERIALS = ['silicone', 'sportflex'];
+
+// ---------- Engraving ----------
+// Six fonts, the same set for every language (Arabic included). Engraving goes on the clasp.
+// Fonts without Arabic glyphs fall back to IBM Plex Sans Arabic in the on-screen preview.
+const AR_FALLBACK = '"IBM Plex Sans Arabic"';
+export const ENGRAVING_FONTS = [
+  { id: 'raleway', name: 'Raleway', family: `"Raleway", ${AR_FALLBACK}, sans-serif`, weight: 400 },
+  { id: 'tenor', name: 'Tenor Sans', family: `"Tenor Sans", ${AR_FALLBACK}, sans-serif`, weight: 400 },
+  { id: 'b612', name: 'B612 Mono', family: `"B612 Mono", ${AR_FALLBACK}, monospace`, weight: 400 },
+  { id: 'cinzel', name: 'Cinzel Decorative', family: `"Cinzel Decorative", ${AR_FALLBACK}, serif`, weight: 400 },
+  { id: 'yeseva', name: 'Yeseva One', family: `"Yeseva One", ${AR_FALLBACK}, serif`, weight: 400 },
+  { id: 'mashan', name: 'Ma Shan Zheng', family: `"Ma Shan Zheng", ${AR_FALLBACK}, cursive`, weight: 400 },
+];
+export const ENGRAVE_MAX = 10;
+// Symbols that can be engraved alongside text
+export const ENGRAVING_SYMBOLS = ['♥', '☀', '★', '☾', '✦', '♛', '✿', '∞', '✓', '☘'];
+export const isArabic = (s) => /[\u0600-\u06FF]/.test(s || '');
+export const fontFor = (id) => ENGRAVING_FONTS.find((f) => f.id === id) || ENGRAVING_FONTS[0];
+
+// ---------- Printing ----------
+// Printing is available on nylon straps only. Customers pick a preset design or upload their own;
+// artwork is fitted to the printable area. PRINT_PRICE is a placeholder until NOVVO confirms it.
+export const PRINTABLE_MATERIALS = ['nylon'];
 export const PRINT_PRICE = 3;
+// Preset design library (drawn in js/designs.js). Licensed popular logos can be added here later.
+export const PRINT_DESIGNS = [
+  { id: 'stripes', name: { en: 'Race Stripes', ar: 'خطوط سباق' } },
+  { id: 'camo', name: { en: 'Desert Camo', ar: 'تمويه صحراوي' } },
+  { id: 'kuwait', name: { en: 'Kuwait', ar: 'الكويت' } },
+  { id: 'waves', name: { en: 'Waves', ar: 'أمواج' } },
+  { id: 'check', name: { en: 'Checker', ar: 'مربعات' } },
+  { id: 'stars', name: { en: 'Stars', ar: 'نجوم' } },
+  { id: 'geo', name: { en: 'Geometric', ar: 'هندسي' } },
+  { id: 'leopard', name: { en: 'Leopard', ar: 'نمر' } },
+];
 
 // ---------- Product perks ----------
-// PLACEHOLDERS until the factory questionnaire comes back.
+// Only the confirmed answers from the questionnaire are used here.
 export const PERKS = [
-  { icon: 'drop',    t: { en: 'Sweat & water resistant', ar: 'مقاوم للعرق والماء' }, d: { en: 'Built for training, swimming and Gulf summers.', ar: 'مصمم للتمارين والسباحة وصيف الخليج.' } },
-  { icon: 'leaf',    t: { en: 'Skin-friendly', ar: 'لطيف على البشرة' }, d: { en: 'Hypoallergenic, latex-free materials for all-day wear.', ar: 'خامات مضادة للحساسية وخالية من اللاتكس للارتداء طوال اليوم.' } },
-  { icon: 'wind',    t: { en: 'Breathable', ar: 'قابل للتهوية' }, d: { en: 'Airy weaves keep your wrist cool and dry.', ar: 'نسيج متجدد الهواء يحافظ على برودة وجفاف معصمك.' } },
-  { icon: 'lock',    t: { en: 'Secure fit', ar: 'ثبات محكم' }, d: { en: 'Cut for each pod so it clicks in and never slips.', ar: 'مقصوص لكل جهاز ليثبت بإحكام ولا ينزلق.' } },
-  { icon: 'shield',  t: { en: 'Built to last', ar: 'متين ويدوم' }, d: { en: 'Colourfast fibres and reinforced edges.', ar: 'ألياف ثابتة اللون وحواف مقوّاة.' } },
-  { icon: 'sun',     t: { en: 'Quick-dry', ar: 'سريع الجفاف' }, d: { en: 'Dries fast after a workout or a swim.', ar: 'يجف بسرعة بعد التمرين أو السباحة.' } },
+  { icon: 'lock',   t: { en: 'Holds its shape', ar: 'يحافظ على شكله' }, d: { en: 'Straps don’t stretch or lose their shape with normal use.', ar: 'الأحزمة لا تتمدد ولا تفقد شكلها مع الاستخدام العادي.' } },
+  { icon: 'drop',   t: { en: 'Colour that stays', ar: 'لون ثابت' }, d: { en: 'No fading, peeling or colour transfer onto skin or clothes in normal use.', ar: 'لا يبهت ولا يتقشر ولا ينقل اللون إلى البشرة أو الملابس مع الاستخدام العادي.' } },
+  { icon: 'sun',    t: { en: 'Made for the GCC', ar: 'مصمم للخليج' }, d: { en: 'Suited to Gulf heat, sunlight and humidity.', ar: 'مناسب لحرارة الخليج وأشعة الشمس والرطوبة.' } },
+  { icon: 'wind',   t: { en: 'All-day comfort', ar: 'راحة طوال اليوم' }, d: { en: 'Breathable and comfortable to wear all day; the feel varies by material.', ar: 'قابل للتهوية ومريح طوال اليوم، ويختلف الإحساس حسب الخامة.' } },
+  { icon: 'pen',    t: { en: 'Engrave with confidence', ar: 'انقش بثقة' }, d: { en: 'Engraving doesn’t affect durability or how the strap works.', ar: 'النقش لا يؤثر على متانة الحزام أو وظيفته.' } },
+  { icon: 'shield', t: { en: 'Checked twice', ar: 'فحص مزدوج' }, d: { en: 'Our supplier runs quality checks, and NOVVO inspects every product before sale.', ar: 'يجري المورّد فحوصات جودة منتظمة، وتفحص NOVVO كل منتج قبل بيعه.' } },
 ];

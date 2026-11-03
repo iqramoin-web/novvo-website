@@ -15,7 +15,7 @@ const DEVICE_INFO = {
   whoop: { img: 'assets/devices/whoop.png', models: '5.0 · MG · ONE · PEAK · 4.0' },
   garmin: { img: 'assets/devices/garmin.png', models: 'Cirqa · Smart Band' },
   fitbit: { img: 'assets/devices/fitbit.png', models: 'Air' },
-  charms: { img: null, models: 'Gold · Silver · Rose' },
+  charms: { img: null, models: 'Gold · Silver' },
 };
 const FEATURE_ICONS = {
   fit: '<svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="4"/><path d="M7 9h10M7 15h10"/></svg>',
@@ -130,7 +130,7 @@ export function homeView() {
       <div class="custom__row"><span>${t('cz.color')}<b id="czColorName">${L(COLORS.sage)}</b></span>
         <div class="swatches" id="czColor">${BAND_COLORS.map((c) => `<button class="swatch ${c === 'sage' ? 'is-on' : ''}" style="--c:${COLORS[c].hex}" data-v="${c}" aria-label="${esc(L(COLORS[c]))}" type="button"></button>`).join('')}</div></div>
       <div class="custom__row"><span>${t('cz.engrave')}<b>+${money(ENGRAVING_PRICE)}</b></span>
-        <div class="engrave-input"><input id="czEng" maxlength="14" placeholder="${esc(t('eng.placeholder'))}" autocomplete="off" /><small class="mono" id="czCount">0/14</small></div></div>
+        <div class="engrave-input"><input id="czEng" maxlength="10" placeholder="${esc(t('eng.placeholder'))}" autocomplete="off" /><small class="mono" id="czCount">0/10</small></div></div>
       <div class="custom__row"><span>${t('cz.charms')}<b>+${money(CHARM_ADDON_PRICE)}</b></span>
         <div class="charm-toggles" id="czCharms">${['star', 'heart', 'bolt'].map((c) => `<button type="button" class="charm-toggle" data-v="${c}" aria-label="${c}">${charmIcon[c]}</button>`).join('')}</div></div>
       <div class="custom__buy"><div><span class="mono muted">${t('cz.total')}</span><br><b id="czPrice"></b></div><button class="btn btn--accent" type="button" id="czAdd">${t('h.add')} ${icon.arrow}</button></div>
@@ -425,7 +425,7 @@ export function mountHome(root, { onQuick }) {
   let engViewed = false;
   $('#czEng', root).addEventListener('input', (e) => {
     st.engraving = e.target.value;
-    $('#czCount', root).textContent = `${e.target.value.length}/14`;
+    $('#czCount', root).textContent = `${[...e.target.value].length}/10`;
     if (!engViewed) {
       engViewed = true;
       stage.controls.autoRotate = false;

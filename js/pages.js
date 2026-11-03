@@ -1,6 +1,7 @@
 // Inner pages: shop, product configurator, checkout, confirmation, tracking, contact.
 import { t, L, getLang } from './i18n.js';
-import { COLORS, MATERIALS, DEVICES, SIZES, PRODUCTS, COUNTRIES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, BRAND, PERKS, ENGRAVING_FONTS, PRINTABLE_MATERIALS, PRINT_PRICE, isArabic, getProduct } from './data.js';
+import { COLORS, MATERIALS, DEVICES, SIZES, PRODUCTS, COUNTRIES, ENGRAVING_PRICE, CHARM_ADDON_PRICE, BRAND, PERKS, ENGRAVING_FONTS, ENGRAVING_SYMBOLS, ENGRAVE_MAX, MATERIAL_FACTS, PRINTABLE_MATERIALS, PRINT_PRICE, PRINT_DESIGNS, getProduct } from './data.js';
+import { designCanvas } from './designs.js';
 import * as store from './store.js';
 import { Band, Stage, makeCharm, thumb } from './band3d.js';
 import { $, $$, esc, icon, charmIcon, card, bindCards, hydrateThumbs, thumbImg, thumbSpec, productName, toast, flyToCart, reveal, perksSection } from './ui.js';
@@ -110,10 +111,7 @@ export function productView(id) {
           <div class="sizes" id="optSize">${SIZES.map((s) => `<button type="button" class="size ${s.id === 'M' ? 'is-on' : ''}" data-size="${s.id}"><b>${s.id}</b><small>${s.cm}</small></button>`).join('')}</div>
         </div>` : ''}
 
-        ${['nylon', 'leather'].includes(p.material) ? `
-        <div class="opt"><div class="opt__head"><b>${t('pdp.clasp')}</b><span id="optClaspName">${L(COLORS.silver)}</span></div>
-          <div class="swatches" id="optClasp">${['silver', 'gold', 'rose'].map((c, i) => `<button class="swatch ${i ? '' : 'is-on'}" style="--c:${COLORS[c].hex}" data-clasp="${c}" aria-label="${esc(L(COLORS[c]))}" type="button"></button>`).join('')}</div>
-        </div>` : ''}
+        ${!isCharm ? `<p class="opt__facts mono">${esc(L(MATERIAL_FACTS[p.material]))}</p>` : `<p class="opt__facts mono">${esc(L(MATERIAL_FACTS.charms))}</p>`}
 
         ${!isCharm ? `
         <div class="opt">
@@ -122,9 +120,10 @@ export function productView(id) {
             ${p.engravingIncluded ? `<span class="mono" style="color:var(--accent)">${t('pdp.included')}</span>` : `<span class="mono muted">+${store.money(ENGRAVING_PRICE)}</span><button type="button" class="switch" role="switch" aria-checked="false" id="optEngrave" aria-label="${t('pdp.engrave')}"></button>`}
           </div>
           <div class="engrave-box" id="engBox" ${p.engravingIncluded ? '' : 'hidden'}>
-            <input class="input" id="engText" maxlength="14" placeholder="${esc(t('eng.placeholder'))}" autocomplete="off" />
-            <div class="seg seg--fonts" id="engFont"></div>
-            <p class="opt__note">${t('eng.fontsAr')}</p>
+            <div class="engrave-input"><input id="engText" placeholder="${esc(t('eng.placeholder'))}" autocomplete="off" /><small class="mono" id="engCount">0/${ENGRAVE_MAX}</small></div>
+            <div class="symbols" id="engSymbols" aria-label="${esc(t('eng.symbols'))}">${ENGRAVING_SYMBOLS.map((c) => `<button type="button" data-sym="${c}" aria-label="${c}">${c}</button>`).join('')}</div>
+            <div class="font-grid" id="engFont">${ENGRAVING_FONTS.map((f, i) => `<button type="button" class="${i ? '' : 'is-on'}" data-font="${f.id}"><span style="font-family:${f.family.replace(/"/g, "'")}">Aa</span><small>${esc(f.name)}</small></button>`).join('')}</div>
+            <p class="opt__note">${t('eng.clasp')}</p>
           </div>
         </div>
         ${PRINTABLE_MATERIALS.includes(p.material) ? `
@@ -133,16 +132,22 @@ export function productView(id) {
             <div><b>${t('print.title')}</b><div class="muted" style="font-size:13px">${t('print.hint')}</div></div>
             <span class="mono muted">+${store.money(PRINT_PRICE)}</span>
           </div>
-          <div class="print-box">
-            <label class="print-drop" id="printDrop"><input type="file" accept="image/png,image/jpeg,image/webp" id="printFile" hidden />${icon.upload}<span id="printName">${t('print.choose')}</span></label>
-            <button type="button" class="print-rm link-u" id="printRm" hidden>${t('print.remove')}</button>
+          <div class="print-designs" id="printDesigns">
+            <button type="button" class="print-tile is-on" data-design="none"><span class="print-tile__none">${t('print.none')}</span><small>${t('print.none')}</small></button>
+            ${PRINT_DESIGNS.map((d) => `<button type="button" class="print-tile" data-design="${d.id}"><img alt="" data-design-img="${d.id}" /><small>${esc(L(d.name))}</small></button>`).join('')}
+            <label class="print-tile print-tile--upload" id="printDrop"><input type="file" accept="image/png,image/jpeg,image/webp" id="printFile" hidden /><span class="print-tile__none">${icon.upload}</span><small id="printName">${t('print.choose')}</small></label>
           </div>
-          <p class="opt__note">${t('print.pending')}</p>
+          <div class="print-place" id="printPlace" hidden>
+            <div class="seg" id="printMode"><button type="button" class="is-on" data-mode="wrap">${t('print.wrap')}</button><button type="button" data-mode="place">${t('print.place')}</button></div>
+            <label class="range-row" id="printPosRow" hidden><span>${t('print.pos')}</span><input type="range" id="printPos" min="0.3" max="0.7" step="0.01" value="0.5" /></label>
+            <label class="range-row" id="printScaleRow" hidden><span>${t('print.size')}</span><input type="range" id="printScale" min="0.4" max="1" step="0.01" value="0.9" /></label>
+          </div>
+          <p class="opt__note">${t('print.note')}</p>
         </div>` : ''}
         <div class="opt"><div class="opt__head"><b>${t('pdp.charms')}</b><span class="mono muted">+${store.money(CHARM_ADDON_PRICE)} / ea</span></div>
           <div class="toggle-row" style="justify-content:flex-start;flex-wrap:wrap">
             <div class="charm-toggles" id="optCharms">${['star', 'heart', 'bolt', 'disc'].map((c) => `<button type="button" class="charm-toggle" data-charm="${c}" aria-label="${c}">${charmIcon[c]}</button>`).join('')}</div>
-            <div class="swatches" id="optCharmMetal">${['gold', 'silver', 'rose'].map((c, i) => `<button class="swatch swatch--sm ${i ? '' : 'is-on'}" style="--c:${COLORS[c].hex}" data-metal="${c}" aria-label="${esc(L(COLORS[c]))}" type="button"></button>`).join('')}</div>
+            <div class="swatches" id="optCharmMetal">${['gold', 'silver'].map((c, i) => `<button class="swatch swatch--sm ${i ? '' : 'is-on'}" style="--c:${COLORS[c].hex}" data-metal="${c}" aria-label="${esc(L(COLORS[c]))}" type="button"></button>`).join('')}</div>
             <input class="input" id="optInitial" maxlength="1" value="N" style="width:60px;text-align:center;display:none" aria-label="${t('pdp.initial')}" />
           </div>
         </div>` : p.shape === 'disc' ? `
@@ -185,7 +190,8 @@ export function mountProduct(root, { id, onQuick, openCart }) {
   const isCharm = p.kind === 'charm';
   const st = {
     color: p.colors[0], size: 'M', variant: (p.variants || DEVICES[p.device].variants || [])[0], clasp: 'silver',
-    engrave: !!p.engravingIncluded, engraving: '', font: 'sans', charms: [], charmMetal: 'gold', initial: 'N', qty: 1,
+    engrave: !!p.engravingIncluded, engraving: '', font: ENGRAVING_FONTS[0].id, charms: [], charmMetal: 'gold', initial: 'N', qty: 1,
+    print: null, printName: '', printMode: 'wrap', printPos: 0.5, printScale: 0.9,
   };
 
   const stage = new Stage($('#pdpCanvas', root), { orbit: true, distance: isCharm ? 5 : 7, shadow: !isCharm });
@@ -198,7 +204,6 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     band = new Band({ device: p.device, material: p.material, color: COLORS[st.color].hex });
     band.group.rotation.set(0.4, -0.5, 0.06);
     stage.pivot.add(band.group);
-    band.set({ clasp: st.clasp });
   }
   stage.onFrame((dt, time) => { stage.pivot.position.y = Math.sin(time * 1.1) * 0.05; });
   stage.start();
@@ -224,7 +229,7 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     $('#pdpPrice', root).textContent = store.money(unit());
     $('#addPrice', root).textContent = store.money(unit() * st.qty);
     $('#qty', root).textContent = st.qty;
-    if (band) band.set({ color: COLORS[st.color].hex, clasp: st.clasp, engraving: st.engrave ? st.engraving : '', font: st.font, charms: st.charms, charmMetal: st.charmMetal, initial: st.initial, print: st.print || null });
+    if (band) band.set({ color: COLORS[st.color].hex, engraving: st.engrave ? st.engraving : '', font: st.font, charms: st.charms, charmMetal: st.charmMetal, initial: st.initial, print: st.print ? { img: st.print, mode: st.printMode, pos: st.printPos, scale: st.printScale } : null });
     const ini = $('#optInitial', root);
     if (ini && !isCharm) ini.style.display = st.charms.includes('disc') ? '' : 'none';
   };
@@ -240,7 +245,6 @@ export function mountProduct(root, { id, onQuick, openCart }) {
   });
   pick('#optVariant', 'variant', (v) => (st.variant = v));
   pick('#optSize', 'size', (v) => (st.size = v));
-  pick('#optClasp', 'clasp', (v) => { st.clasp = v; $('#optClaspName', root).textContent = L(COLORS[v]); });
   pick('#optCharmMetal', 'metal', (v) => (st.charmMetal = v));
   pick('#engFont', 'font', (v) => (st.font = v));
   $('#optCharms', root)?.addEventListener('click', (e) => {
@@ -263,44 +267,67 @@ export function mountProduct(root, { id, onQuick, openCart }) {
     refresh();
   });
   let engViewed = false;
-  // engraving fonts come from ENGRAVING_FONTS; the Arabic set is used for Arabic text
-  const renderFonts = () => {
-    const box = $('#engFont', root); if (!box) return;
-    const set = isArabic(st.engraving) ? ENGRAVING_FONTS.ar : ENGRAVING_FONTS.en;
-    if (!set.some((f) => f.id === st.font)) st.font = set[0].id;
-    box.innerHTML = set.map((f) => `<button type="button" class="${f.id === st.font ? 'is-on' : ''}" data-font="${f.id}" style="font-family:${f.family.replace(/"/g, "'")};font-weight:${f.weight}">${esc(L(f.label))}</button>`).join('');
-  };
-  renderFonts();
-  $('#engText', root)?.addEventListener('input', (e) => {
-    const wasArabic = isArabic(st.engraving);
-    st.engraving = e.target.value;
-    if (isArabic(st.engraving) !== wasArabic) renderFonts();
+  // engraving: 10 characters max (symbols count as one), previewed live on the clasp
+  const engText = $('#engText', root);
+  const setEngraving = (v) => {
+    const chars = [...v].slice(0, ENGRAVE_MAX);
+    st.engraving = chars.join('');
+    if (engText.value !== st.engraving) engText.value = st.engraving;
+    $('#engCount', root).textContent = `${chars.length}/${ENGRAVE_MAX}`;
     if (!engViewed) { engViewed = true; setView('engrave'); }
     refresh();
+  };
+  engText?.addEventListener('input', () => setEngraving(engText.value));
+  $('#engSymbols', root)?.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-sym]'); if (!b) return;
+    const at = engText.selectionStart ?? engText.value.length;
+    setEngraving(engText.value.slice(0, at) + b.dataset.sym + engText.value.slice(at));
+    engText.focus();
   });
-  // customer image print
+  pick('#engFont', 'font', (v) => { st.font = v; if (!engViewed) { engViewed = true; setView('engrave'); } });
+
+  // printing (nylon only): pick a preset design or upload your own, then choose placement
+  $$('[data-design-img]', root).forEach((img) => { img.src = designCanvas(img.dataset.designImg)?.toDataURL('image/png') || ''; });
   const printFile = $('#printFile', root);
+  const syncPrintUI = () => {
+    $('#printPlace', root).hidden = !st.print;
+    const placed = st.printMode === 'place';
+    $('#printPosRow', root).hidden = !placed;
+    $('#printScaleRow', root).hidden = !placed;
+    $$('#printMode [data-mode]', root).forEach((b) => b.classList.toggle('is-on', b.dataset.mode === st.printMode));
+  };
+  const selectTile = (el) => $$('#printDesigns .print-tile', root).forEach((x) => x.classList.toggle('is-on', x === el));
+  const usePrint = (img, name, mode) => {
+    st.print = img; st.printName = name; st.printMode = mode;
+    syncPrintUI();
+    setView(mode === 'wrap' ? 'front' : 'print');
+    refresh();
+  };
+  $('#printDesigns', root)?.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-design]'); if (!b) return;
+    selectTile(b);
+    if (b.dataset.design === 'none') { st.print = null; syncPrintUI(); refresh(); return; }
+    const d = PRINT_DESIGNS.find((x) => x.id === b.dataset.design);
+    usePrint(designCanvas(d.id), L(d.name), 'wrap');
+  });
   printFile?.addEventListener('change', () => {
     const f = printFile.files?.[0]; if (!f) return;
     const img = new Image();
     img.onload = () => {
-      st.print = img; st.printName = f.name;
       $('#printName', root).textContent = f.name;
-      $('#printRm', root).hidden = false;
-      $('#printDrop', root).classList.add('has-file');
-      setView('print');
-      refresh();
+      selectTile($('#printDrop', root));
+      usePrint(img, f.name, 'place');
     };
     img.src = URL.createObjectURL(f);
   });
-  $('#printRm', root)?.addEventListener('click', () => {
-    st.print = null; st.printName = '';
-    printFile.value = '';
-    $('#printName', root).textContent = t('print.choose');
-    $('#printRm', root).hidden = true;
-    $('#printDrop', root).classList.remove('has-file');
+  $('#printMode', root)?.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-mode]'); if (!b) return;
+    st.printMode = b.dataset.mode; syncPrintUI();
+    setView(st.printMode === 'wrap' ? 'front' : 'print');
     refresh();
   });
+  $('#printPos', root)?.addEventListener('input', (e) => { st.printPos = +e.target.value; refresh(); });
+  $('#printScale', root)?.addEventListener('input', (e) => { st.printScale = +e.target.value; refresh(); });
 
   $('.qty', root).addEventListener('click', (e) => {
     const b = e.target.closest('[data-q]'); if (!b) return;
@@ -310,10 +337,9 @@ export function mountProduct(root, { id, onQuick, openCart }) {
   const add = async (btn) => {
     const item = { id: p.id, color: st.color, qty: st.qty };
     if (!isCharm) Object.assign(item, { size: st.size, variant: st.variant, charms: st.charms, charmMetal: st.charms.length ? st.charmMetal : undefined, initial: st.charms.includes('disc') ? st.initial : undefined });
-    if (['nylon', 'leather'].includes(p.material)) item.clasp = st.clasp;
     if (st.engrave && st.engraving.trim()) Object.assign(item, { engraving: st.engraving.trim(), font: st.font });
-    // the image itself would be uploaded with the order once a backend exists; the cart keeps the file name
-    if (st.print) item.print = st.printName;
+    // an uploaded image would be sent with the order once a backend exists; the cart keeps its name and placement
+    if (st.print) item.print = `${st.printName} · ${t(st.printMode === 'wrap' ? 'print.wrap' : 'print.place')}`;
     if (isCharm && p.shape === 'disc') item.initial = st.initial;
     store.addToCart(item);
     const src = await thumb(thumbSpec(p, st.color));
@@ -634,6 +660,26 @@ const LEGAL_SECTIONS = {
   },
 };
 
+// NOVVO's preferred returns policy (questionnaire, 28.10.2026), shown under Terms → Exchanges & returns.
+const RETURNS_POLICY = {
+  en: [
+    'Returns and size exchanges can be requested within 14 days of receipt, with proof of purchase.',
+    'Items must be unworn, unwashed, unaltered and in their original condition, with packaging and accessories.',
+    'Size exchanges are subject to availability.',
+    'Customised products don’t qualify for change-of-mind or incorrect-size returns once customisation has started, subject to applicable consumer rights.',
+    'Confirmed manufacturing defects, incorrect products or customisation mistakes by NOVVO qualify for a replacement or refund.',
+    'Normal wear, accidental damage, misuse and improper care are not covered.',
+  ],
+  ar: [
+    'يمكن طلب الإرجاع أو استبدال المقاس خلال ١٤ يوماً من الاستلام مع إثبات الشراء.',
+    'يجب أن يكون المنتج غير مستخدم وغير مغسول وغير معدّل وبحالته الأصلية مع التغليف والملحقات.',
+    'استبدال المقاس حسب التوفر.',
+    'لا تشمل المنتجات المخصصة الإرجاع بسبب تغيير الرأي أو المقاس الخاطئ بعد بدء التخصيص، مع مراعاة حقوق المستهلك المعمول بها.',
+    'عيوب التصنيع المؤكدة أو المنتجات الخاطئة أو أخطاء التخصيص من NOVVO تستحق الاستبدال أو الاسترداد.',
+    'لا يشمل الضمان الاستهلاك العادي أو الأضرار العرضية أو سوء الاستخدام أو العناية غير الصحيحة.',
+  ],
+};
+
 export function legalView(kind) {
   const lang = getLang();
   const title = t(kind === 'terms' ? 'legal.terms' : 'legal.privacy');
@@ -646,7 +692,9 @@ export function legalView(kind) {
     </div>
     <div class="legal__body">
       <p class="legal__pending">${t('legal.pending')}</p>
-      ${LEGAL_SECTIONS[kind][lang].map((h, i) => `<section><h2>${i + 1}. ${esc(h)}</h2><p class="muted">—</p></section>`).join('')}
+      ${LEGAL_SECTIONS[kind][lang].map((h, i) => `<section><h2>${i + 1}. ${esc(h)}</h2>${kind === 'terms' && i === 3
+        ? `<ul class="legal__list">${RETURNS_POLICY[lang].map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`
+        : '<p class="muted">—</p>'}</section>`).join('')}
       <p><a class="arrow-l link-u" href="#/contact">${icon.arrow}${t('legal.contact')}</a></p>
     </div>
   </section>`;

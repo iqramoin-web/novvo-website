@@ -4,14 +4,15 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { fontFor, isArabic } from './data.js';
+import { fontFor, isArabic, ENGRAVE_MAX } from './data.js';
 
 const EXP = 2.3;                             // loop superellipse exponent
 const U_SEG = 260;
 const TEX_W = 2048, TEX_H = 512;
 const ENGRAVE_U = 0.75;                      // bottom of the loop
-const CLASP_U = 0.6;
-const PRINT_U = 0.5;                         // left side of the loop
+const CLASP_U = 0.75;                        // the clasp sits at the bottom of the loop and carries the engraving
+const CLASP_L = 0.72, CLASP_H = 0.06;
+const PRINT_U = 0.5;                         // default centre of a placed print (left side of the loop)
 const CHARM_U = [0.06, 0.94, 0.14, 0.86];
 
 // Proportions measured from each device's official product photo
@@ -319,6 +320,15 @@ function charmIconTexture(kind, metal = 'gold', letter = 'N') {
   g.fillStyle = grad; g.fill(path);
   g.shadowColor = 'transparent';
   g.lineWidth = 0.55; g.strokeStyle = 'rgba(255,255,255,0.65)'; g.stroke(path);
+  // Czech-style rhinestones: a few faceted crystals set into the plating
+  const stones = { star: [[12, 7.5], [8, 13], [16, 13]], heart: [[8, 9], [16, 9], [12, 14.5]], bolt: [[12.5, 7], [11, 15]], disc: [[12, 4.6], [5.2, 15.5], [18.8, 15.5]] }[kind] || [];
+  stones.forEach(([x, y]) => {
+    const r = 1.35, sg = g.createRadialGradient(x - 0.4, y - 0.4, 0.1, x, y, r);
+    sg.addColorStop(0, '#ffffff'); sg.addColorStop(0.5, '#e6f2ff'); sg.addColorStop(1, '#8fa5bf');
+    g.fillStyle = sg; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 0.18;
+    g.beginPath(); g.moveTo(x - r * 1.5, y); g.lineTo(x + r * 1.5, y); g.moveTo(x, y - r * 1.5); g.lineTo(x, y + r * 1.5); g.stroke();
+  });
   if (kind === 'disc') {
     g.fillStyle = 'rgba(60,40,10,0.75)';
     g.font = `600 13px ${/[\u0600-\u06FF]/.test(letter) ? '"IBM Plex Sans Arabic"' : '"Instrument Serif", serif'}`;
@@ -368,15 +378,28 @@ export class Band {
     this.printCanvas.width = TEX_W; this.printCanvas.height = TEX_H;
     this.printTex = tex(this.printCanvas, true);
     this.printMesh = new THREE.Mesh(undefined, new THREE.MeshStandardMaterial({
-      map: this.printTex, transparent: true, roughness: 0.55, depthWrite: false,
+      map: this.printTex, emissive: '#ffffff', emissiveMap: this.printTex, emissiveIntensity: 0.35,
+      transparent: true, roughness: 0.92, envMapIntensity: 0.35, depthWrite: false,
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, side: THREE.DoubleSide,
     }));
     this.printMesh.visible = false;
     this.group.add(this.printMesh);
     this.pod = new THREE.Group(); this.group.add(this.pod);
     this.charmGroup = new THREE.Group(); this.group.add(this.charmGroup);
-    this.claspMesh = new THREE.Mesh(undefined, metalMaterial(this.cfg.clasp));
-    this.group.add(this.claspMesh);
+    // 316L stainless steel clasp; the engraving is etched onto its top face
+    this.clasp = new THREE.Group();
+    this.claspMesh = new THREE.Mesh(undefined, metalMaterial('silver'));
+    this.engraveCanvas = document.createElement('canvas');
+    this.engraveTex = new THREE.CanvasTexture(this.engraveCanvas);
+    this.engraveTex.colorSpace = THREE.SRGBColorSpace;
+    this.engraveTex.anisotropy = 8;
+    // the clasp faces outward at the bottom of the loop, so turn the text to read upright
+    this.engraveTex.center.set(0.5, 0.5);
+    this.engraveTex.rotation = Math.PI;
+    this.engravePlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ map: this.engraveTex, transparent: true, roughness: 0.6, metalness: 0.4, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }));
+    this.engravePlane.rotation.x = -Math.PI / 2;
+    this.clasp.add(this.claspMesh, this.engravePlane);
+    this.group.add(this.clasp);
 
     this._applyDevice();
     this._applyMaterial();
@@ -392,7 +415,6 @@ export class Band {
     else if (c.material !== prev.material || c.engraving !== prev.engraving || c.font !== prev.font || c.print !== prev.print) this._redraw();
     if (c.material !== prev.material) this._applyMaterial();
     if (c.color !== prev.color) this.setColor(c.color, next.animate !== false);
-    if (c.clasp !== prev.clasp) this.claspMesh.material.color.set(METALS[c.clasp] || c.clasp);
     if (JSON.stringify(c.charms) !== JSON.stringify(prev.charms) || c.charmMetal !== prev.charmMetal || c.initial !== prev.initial) this._buildCharms();
   }
 
@@ -408,8 +430,14 @@ export class Band {
     const { geometry, spec, surfaceAt } = this.shape;
     this.strap.geometry = geometry;
     this.printMesh.geometry = geometry;
-    this.claspMesh.geometry = new RoundedBoxGeometry(0.24, 0.05, spec.w * 1.06, 2, 0.02);
-    placeOnLoop(this.claspMesh, surfaceAt(CLASP_U, 0.022));
+    const D = spec.w * 1.06;
+    this.claspMesh.geometry = new RoundedBoxGeometry(CLASP_L, CLASP_H, D, 3, 0.025);
+    this.engravePlane.scale.set(CLASP_L * 0.9, D * 0.78, 1);
+    this.engravePlane.position.y = CLASP_H / 2 + 0.002;
+    // canvas matches the plane's proportions so lettering isn't stretched
+    this.engraveCanvas.width = 1024;
+    this.engraveCanvas.height = Math.round(1024 * (D * 0.78) / (CLASP_L * 0.9));
+    placeOnLoop(this.clasp, surfaceAt(CLASP_U, CLASP_H / 2 - 0.005));
     this._buildPod();
     this._redraw();
     this._buildCharms();
@@ -422,9 +450,35 @@ export class Band {
     this._updateClasp();
   }
 
-  // Garmin's cuff closes with its own buckle, so the generic clasp is hidden there.
+  // Every strap has a clasp (316L steel; zinc alloy on leather), so it is always shown.
   _updateClasp() {
-    this.claspMesh.visible = ['nylon', 'leather'].includes(this.cfg.material) && this.cfg.device !== 'garmin';
+    this.clasp.visible = true;
+  }
+
+  // Etch the engraving text onto the clasp in the chosen font.
+  _drawEngraving() {
+    const c = this.engraveCanvas, g = c.getContext('2d');
+    g.clearRect(0, 0, c.width, c.height);
+    const text = [...(this.cfg.engraving || '').trim()].slice(0, ENGRAVE_MAX).join('');
+    if (text) {
+      const font = fontFor(this.cfg.font);
+      const spec = `${font.weight} ${Math.round(c.height * 0.62)}px ${font.family}`;
+      // fonts load on demand; redraw once the chosen one is ready
+      if (document.fonts && !document.fonts.check(spec, text)) document.fonts.load(spec, text).then(() => this._drawEngraving());
+      let size = c.height * 0.62;
+      g.font = `${font.weight} ${size}px ${font.family}`;
+      const w = g.measureText(text).width, maxW = c.width * 0.9;
+      if (w > maxW) { size *= maxW / w; g.font = `${font.weight} ${size}px ${font.family}`; }
+      g.save();
+      g.translate(c.width / 2, c.height / 2);
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.direction = isArabic(text) ? 'rtl' : 'ltr';
+      // laser-etched steel: a dark core with a faint light edge
+      g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillText(text, 1.5, size * 0.05 + 1.5);
+      g.fillStyle = 'rgba(38,40,44,0.92)'; g.fillText(text, 0, size * 0.05);
+      g.restore();
+    }
+    this.engraveTex.needsUpdate = true;
   }
 
   _redraw() {
@@ -438,44 +492,33 @@ export class Band {
 
     this._drawPrint(faceH, kx);
 
-    const text = (this.cfg.engraving || '').trim();
-    if (text) {
-      const arabic = isArabic(text);
-      const font = fontFor(this.cfg.font, text);
-      const draw = (ctx, fill) => {
-        ctx.save();
-        ctx.translate(ENGRAVE_U * TEX_W, faceH / 2);
-        ctx.scale(kx, -1);
-        let size = faceH * (arabic ? 0.42 : 0.46);
-        ctx.font = `${font.weight} ${size}px ${font.family}`;
-        if (!arabic) ctx.letterSpacing = `${size * 0.08}px`;
-        const maxW = (TEX_W * 0.3) / kx;
-        const w = ctx.measureText(text).width;
-        if (w > maxW) { size *= maxW / w; ctx.font = `${font.weight} ${size}px ${font.family}`; }
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = fill;
-        ctx.fillText(font.upper ? text.toUpperCase() : text, 0, size * 0.04);
-        ctx.restore();
-      };
-      draw(g, 'rgba(70,70,70,0.92)');
-      draw(e, '#ffffff');
-    }
+    this._drawEngraving();
     this.map.needsUpdate = true;
     this.emap.needsUpdate = true;
   }
 
+  // cfg.print: { img, mode: 'wrap' | 'place', pos: 0–1 along the strap, scale: 0.3–1 }
   _drawPrint(faceH, kx) {
     const g = this.printCanvas.getContext('2d');
     g.clearRect(0, 0, TEX_W, TEX_H);
-    const img = this.cfg.print;
+    const pr = this.cfg.print, img = pr?.img;
     this.printMesh.visible = !!(img && img.width);
     if (this.printMesh.visible) {
-      const h = faceH * 0.9, w = Math.min((h * img.width) / img.height, (TEX_W * 0.28) / kx);
-      g.save();
-      g.translate(PRINT_U * TEX_W, faceH / 2);
-      g.scale(kx, -1);
-      g.drawImage(img, -w / 2, -h / 2, w, h);
-      g.restore();
+      if (pr.mode === 'wrap') {
+        // repeat the artwork around the whole printable (outer) face
+        const h = faceH, w = ((h * img.width) / img.height) * kx;
+        for (let x = 0; x < TEX_W; x += w) {
+          g.save(); g.translate(x + w / 2, faceH / 2); g.scale(1, -1); g.drawImage(img, -w / 2, -h / 2, w, h); g.restore();
+        }
+      } else {
+        const h = faceH * 0.92 * (pr.scale ?? 1);
+        const w = Math.min((h * img.width) / img.height, (TEX_W * 0.45) / kx);
+        g.save();
+        g.translate((pr.pos ?? PRINT_U) * TEX_W, faceH / 2);
+        g.scale(kx, -1);
+        g.drawImage(img, -w / 2, -h / 2, w, h);
+        g.restore();
+      }
     }
     this.printTex.needsUpdate = true;
   }

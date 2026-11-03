@@ -773,3 +773,34 @@ button { cursor: pointer; background: none; border: 0; padding: 0; }
 
 /* keep the floating WhatsApp/assistant buttons clear of the last footer row */
 .footer { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+/* ============ material facts, engraving symbols & fonts, print designer ============ */
+.opt__facts { margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--bg-2); color: var(--fg-2); }
+[dir='rtl'] .opt__facts { font-size: 13px; }
+.engrave-box .engrave-input input { height: 48px; font-size: 16px; }
+.symbols { display: flex; flex-wrap: wrap; gap: 6px; }
+.symbols button { width: 38px; height: 38px; border-radius: 9px; background: var(--bg-2); font-size: 17px; transition: background 0.25s, transform 0.25s var(--ease); }
+.symbols button:hover { background: var(--dark); color: #fff; transform: translateY(-2px); }
+.font-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.font-grid button { display: grid; justify-items: start; gap: 2px; padding: 10px 12px; border-radius: 11px; background: var(--bg-2); text-align: start; border: 1.5px solid transparent; transition: 0.25s var(--ease); }
+.font-grid button span { font-size: 24px; line-height: 1.1; }
+.font-grid button small { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.font-grid button:hover { background: var(--bg-3); }
+.font-grid button.is-on { border-color: var(--dark); background: #fff; }
+.print-designs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+.print-tile { display: grid; gap: 4px; padding: 5px; border-radius: 10px; background: var(--bg-2); border: 1.5px solid transparent; cursor: pointer; transition: 0.25s var(--ease); text-align: center; }
+.print-tile img, .print-tile__none { width: 100%; aspect-ratio: 2 / 1; border-radius: 6px; object-fit: cover; display: grid; place-items: center; background: #fff; color: var(--muted); font-size: 11px; }
+.print-tile__none svg { width: 18px; height: 18px; }
+.print-tile small { font-size: 10.5px; color: var(--fg-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.print-tile:hover { background: var(--bg-3); }
+.print-tile.is-on { border-color: var(--dark); background: #fff; }
+.print-tile--upload .print-tile__none { border: 1.5px dashed var(--line-2); }
+.print-place { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--bg-2); }
+.print-place[hidden], .range-row[hidden] { display: none; }
+.range-row { display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 10px; font-size: 13px; color: var(--fg-2); }
+.range-row input { accent-color: var(--accent); width: 100%; }
+.legal__list { margin: 0; padding-inline-start: 20px; display: grid; gap: 8px; color: var(--fg-2); }
+@media (max-width: 560px) {
+  .font-grid { grid-template-columns: 1fr 1fr; }
+  .print-designs { grid-template-columns: repeat(4, 1fr); }
+}

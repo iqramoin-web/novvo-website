@@ -47,14 +47,17 @@ Suggested prompt (Veo 3 / Kling / Runway):
 `assets/devices/` holds official product photos taken from whoop.com (cropped to the band), garmin.com (background removed) and the Google Store (Fitbit Air).
 They are the manufacturers' copyrighted images. Confirm you're allowed to use them (or swap in your own photography) before launch.
 
-## Pending client details (all in `js/data.js`)
-| What | Where | Waiting on |
-| --- | --- | --- |
-| Inception year, phone, WhatsApp, Instagram, email, address | `BRAND` | NOVVO |
-| Terms & Conditions, Privacy Policy text | `LEGAL_SECTIONS` / `legalView` in `js/pages.js` | NOVVO |
-| Product perks (benefit titles and copy) | `PERKS` | Factory questionnaire |
-| Engraving fonts (English and Arabic) | `ENGRAVING_FONTS` | Joel |
-| Which materials support printing, print price | `PRINTABLE_MATERIALS`, `PRINT_PRICE` | Joel |
+## Client details (all in `js/data.js`)
+Confirmed from NOVVO and the product & material questionnaire (28.10.2026): founding year, phone, registered address, materials, engraving fonts (6, every language, 10-character limit, symbols), and printing on nylon straps only, with a preset design library or customer uploads.
+
+Still to confirm:
+| What | Where |
+| --- | --- |
+| Instagram handle, email, and whether WhatsApp uses the same number | `BRAND` |
+| Print price | `PRINT_PRICE` |
+| Licensed "popular logo" designs for the print library | `PRINT_DESIGNS` + `js/designs.js` |
+| Full Terms & Privacy text (returns section uses NOVVO's preferred policy) | `legalView` in `js/pages.js` |
+| Material-specific care instructions | `pdp.careText` in `js/i18n.js` |
 
 The assistant (`js/support.js`) is rule-based and needs no backend. Its answers live in `js/i18n.js` under `bot.a.*`.
 
